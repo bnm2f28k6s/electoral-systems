@@ -2834,8 +2834,8 @@
         "source": "https://doi.org/10.1073/pnas.0702634104"
       },
       "strong-pareto": {
-        "status": "unverified",
-        "explanation": "Strictly higher submitted grades on every ballot protect a candidate, but no full strong-Pareto theorem for all weak-grade and tie cases is claimed here.",
+        "status": "pass",
+        "explanation": "Submitted weak grade dominance implies every sorted A grade is at least the corresponding B grade, with some strict inequality. The common median-deletion index order must eventually favor A.",
         "source": "https://doi.org/10.1073/pnas.0702634104"
       },
       "liia": {
@@ -2983,8 +2983,8 @@
         "source": "https://cgi.cse.unsw.edu.au/~haziz/comsoc.pdf"
       },
       "strong-pareto": {
-        "status": "unverified",
-        "explanation": "Strictly higher submitted grades on every ballot protect a candidate, but no full strong-Pareto theorem for all weak-grade and tie cases is claimed here.",
+        "status": "pass",
+        "explanation": "For submitted grades, A at least B on every ballot and strictly above B on one gives A a strictly larger sum. Hidden preferences collapsed into equal grades are a different claim.",
         "source": "https://cgi.cse.unsw.edu.au/~haziz/comsoc.pdf"
       },
       "liia": {
@@ -3133,7 +3133,7 @@
       },
       "strong-pareto": {
         "status": "pass",
-        "explanation": "Unanimous strict preference prevents the dominated candidate winning on the stated ballot domain.",
+        "explanation": "Submitted weak grade dominance with one strict improvement gives A a larger sum than B. B cannot pass the finalist cut without A; in their runoff at least one voter prefers A and none prefers B.",
         "source": "https://www.starvoting.org/"
       },
       "liia": {
