@@ -1,0 +1,35 @@
+{
+  "method": "dodgson",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "pairwise": {
+        "A": {
+          "A": 0,
+          "B": 3,
+          "C": 3
+        },
+        "B": {
+          "A": 4,
+          "B": 0,
+          "C": 5
+        },
+        "C": {
+          "A": 4,
+          "B": 2,
+          "C": 0
+        }
+      }
+    },
+    {
+      "adjacentSwaps": {
+        "A": 2,
+        "B": 0,
+        "C": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "method": "nanson",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "active": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tally": {
+        "A": 8,
+        "B": 12,
+        "C": 7
+      },
+      "eliminated": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "active": [
+        "B"
+      ]
+    }
+  ]
+}

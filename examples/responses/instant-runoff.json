@@ -1,0 +1,34 @@
+{
+  "method": "instant-runoff",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "active": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tally": {
+        "A": 4,
+        "B": 3,
+        "C": 2
+      },
+      "eliminated": [
+        "C"
+      ]
+    },
+    {
+      "active": [
+        "A",
+        "B"
+      ],
+      "tally": {
+        "A": 4,
+        "B": 5
+      }
+    }
+  ]
+}

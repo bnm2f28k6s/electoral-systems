@@ -1,0 +1,17 @@
+{
+  "method": "quadratic",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 20,
+        "B": 32,
+        "C": 19
+      },
+      "budget": 100
+    }
+  ]
+}

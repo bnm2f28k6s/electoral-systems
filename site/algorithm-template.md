@@ -1,6 +1,6 @@
-# Algorithm chapter template
+# Method chapter conventions
 
-This is a proposed writing structure, not a specification of any particular voting system.
+Chapters are generated from the method catalog, tested engines, and shared fixtures. Use this structure when extending the resource, and regenerate the examples after changing an algorithm. This page is an authoring guide, not a counting rule.
 
 ## Definition and scope
 

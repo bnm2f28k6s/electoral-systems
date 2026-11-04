@@ -1,0 +1,34 @@
+{
+  "method": "coombs",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "active": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tally": {
+        "A": 5,
+        "B": 0,
+        "C": 4
+      },
+      "eliminated": [
+        "A"
+      ]
+    },
+    {
+      "active": [
+        "B",
+        "C"
+      ],
+      "tally": {
+        "B": 7,
+        "C": 2
+      }
+    }
+  ]
+}

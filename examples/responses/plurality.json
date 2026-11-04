@@ -1,0 +1,16 @@
+{
+  "method": "plurality",
+  "winners": [
+    "A"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 4,
+        "B": 3,
+        "C": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "method": "ranked-pairs",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "pairwise": {
+        "A": {
+          "A": 0,
+          "B": 4,
+          "C": 4
+        },
+        "B": {
+          "A": 5,
+          "B": 0,
+          "C": 7
+        },
+        "C": {
+          "A": 5,
+          "B": 2,
+          "C": 0
+        }
+      }
+    },
+    {
+      "edges": [
+        {
+          "from": "B",
+          "to": "C",
+          "strength": 7,
+          "locked": true
+        },
+        {
+          "from": "B",
+          "to": "A",
+          "strength": 5,
+          "locked": true
+        },
+        {
+          "from": "C",
+          "to": "A",
+          "strength": 5,
+          "locked": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "method": "anti-plurality",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "vetoes": {
+        "A": 5,
+        "B": 0,
+        "C": 4
+      }
+    }
+  ]
+}

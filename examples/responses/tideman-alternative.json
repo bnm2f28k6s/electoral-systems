@@ -1,0 +1,24 @@
+{
+  "method": "tideman-alternative",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "active": [
+        "A",
+        "B",
+        "C"
+      ],
+      "smith": [
+        "B"
+      ]
+    },
+    {
+      "active": [
+        "B"
+      ]
+    }
+  ]
+}

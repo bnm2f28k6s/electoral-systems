@@ -1,25 +1,30 @@
 # Electoral systems as algorithms
 
-How does a ballot become an election result? This project will explain electoral voting systems as algorithms: specify the input, describe the counting rule, trace an example, and state exactly what the result means.
+An election rule turns ballots into a result. Different rules can choose different winners from the same voters. This guide explains **25 ways to choose one winner**, with worked counts, criteria, runnable Python and TypeScript, and a local API that executes the algorithms.
 
-This is an early documentation project. No election engine or hosted API exists yet. It is not intended to administer real elections.
+Start with [plurality](/methods/plurality.md): each voter supports one candidate, and the largest total wins. Then try [instant-runoff](/methods/instant-runoff.md), which transfers preferences, or [approval](/methods/approval.md), which lets voters support several candidates. The [method catalog](/methods.md) covers every row in the single-winner comparison table used as our starting reference, including its lottery methods.
 
-## Starting point
+## Follow a ballot through the count
 
-[Comparison of electoral systems](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems) provides an initial map of voting methods, logical criteria, and evaluation models. These are different kinds of comparison. Future chapters will identify assumptions behind each claim and cite relevant definitions instead of presenting a universal ranking of systems.
+<Steps>
+  <Step title="Choose the ballot format">
+    A single mark, an ordered ranking, approvals, and numerical scores convey different information. Read the [ballot guide](/ballots.md) before comparing results.
+  </Step>
+  <Step title="Run a counting rule">
+    Each method chapter explains the steps, shows intermediate counts, and includes complete Python and TypeScript examples. Copy a code block into a file and run it locally.
+  </Step>
+  <Step title="Understand the tradeoffs">
+    A criterion is a precise guarantee over elections, not a quality score. Read the [criteria guide](/criteria.md) and each method's qualifications. No rule satisfies every desirable property.
+  </Step>
+  <Step title="Simulate an API request">
+    Start the [local server](/api-design.md), send synthetic ballots, and inspect its JSON response. It runs the same Python engine as the examples.
+  </Step>
+</Steps>
 
-## Proposed reading path
+## What the examples mean
 
-1. Define candidates, ballots, and valid input before introducing a counting rule.
-2. Study one single-winner rule with a small, reproducible example.
-3. Compare rules using defined criteria and counterexamples.
-4. Treat multiwinner and proportional representation methods separately.
-5. Explore a shared API after the input and output models are clear.
+The algorithms are deliberately small teaching implementations. Ranked examples use complete rankings with no equal ranks. Intermediate ties use the order in which candidates were supplied; final equal winners are returned together. Random methods expose their distribution and use a reproducible seed. These choices are part of the documented variant, not universal election rules.
 
-## Project notes
+The [sources](/sources.md) distinguish definitions, mathematical properties, and practical implementation choices. A property of a standard method may depend on assumptions that our restricted example cannot express. Each chapter records those qualifications rather than treating one successful count as a proof.
 
-- [Algorithm chapter template](/algorithm-template.md)
-- [API design proposal](/api-design.md)
-- [Generated draft API reference](/api/reference)
-
-Docapella generates this static site from Markdown and an OpenAPI specification. The API reference is documentation, not a live service.
+GitHub Pages serves this documentation; it does not run a backend. The API runs locally. This resource explains counting and does not provide voter registration, secret ballots, election administration, or certification.

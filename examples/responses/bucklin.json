@@ -1,0 +1,25 @@
+{
+  "method": "bucklin",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "depth": 1,
+      "tally": {
+        "A": 4,
+        "B": 3,
+        "C": 2
+      }
+    },
+    {
+      "depth": 2,
+      "tally": {
+        "A": 4,
+        "B": 9,
+        "C": 5
+      }
+    }
+  ]
+}

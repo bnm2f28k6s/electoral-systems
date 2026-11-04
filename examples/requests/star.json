@@ -1,0 +1,39 @@
+{
+  "method": "star",
+  "candidates": [
+    "A",
+    "B",
+    "C"
+  ],
+  "ballots": [
+    {
+      "scores": {
+        "A": 5,
+        "B": 3,
+        "C": 0
+      },
+      "count": 4
+    },
+    {
+      "scores": {
+        "A": 0,
+        "B": 4,
+        "C": 3
+      },
+      "count": 3
+    },
+    {
+      "scores": {
+        "A": 0,
+        "B": 4,
+        "C": 5
+      },
+      "count": 2
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "seed": 1
+  }
+}

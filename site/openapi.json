@@ -1,37 +1,2557 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Electoral systems API draft",
-    "version": "0.0.1",
-    "description": "Exploratory contract only. No API server is implemented or deployed. Example data is illustrative, not executed output."
+    "title": "Electoral systems simulation API",
+    "version": "1.0.0",
+    "description": "Local teaching server executing the same Python counting algorithms shown in the chapters. Start it with `python3 python/server.py`. GitHub Pages hosts documentation only. Results include intermediate counts; a tie remains a set of co-winners. See the API guide for exact variants, tie priorities, and computational limits."
   },
-  "servers": [{"url": "https://example.invalid/v1", "description": "Non-operational placeholder. Do not send requests."}],
-  "tags": [{"name": "Systems", "description": "Proposed catalogue of voting-rule identifiers. No implemented methods are claimed."}],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000",
+      "description": "Local Python simulation server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Systems",
+      "description": "Available method identifiers."
+    },
+    {
+      "name": "Simulations",
+      "description": "Execute a synthetic single-winner election."
+    }
+  ],
   "paths": {
     "/systems": {
       "get": {
-        "tags": ["Systems"],
+        "tags": [
+          "Systems"
+        ],
         "operationId": "listSystems",
-        "summary": "List documented voting systems (proposed)",
-        "description": "Contract sketch only; no running endpoint. The empty response example makes no claim about implemented systems.",
+        "summary": "List implemented methods",
         "responses": {
           "200": {
-            "description": "Proposed list of documentation identifiers.",
+            "description": "All 25 method identifiers.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": ["id", "name"],
-                    "properties": {"id": {"type": "string"}, "name": {"type": "string"}}
-                  }
+                  "type": "object",
+                  "properties": {
+                    "methods": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "plurality",
+                          "anti-plurality",
+                          "two-round",
+                          "instant-runoff",
+                          "coombs",
+                          "nanson",
+                          "baldwin",
+                          "tideman-alternative",
+                          "minimax",
+                          "copeland",
+                          "black",
+                          "kemeny-young",
+                          "ranked-pairs",
+                          "schulze",
+                          "borda",
+                          "bucklin",
+                          "dodgson",
+                          "approval",
+                          "majority-judgment",
+                          "score",
+                          "star",
+                          "quadratic",
+                          "random-ballot",
+                          "maximal-lotteries",
+                          "sortition"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "methods"
+                  ],
+                  "additionalProperties": false
                 },
-                "example": []
+                "example": {
+                  "methods": [
+                    "plurality",
+                    "anti-plurality",
+                    "two-round",
+                    "instant-runoff",
+                    "coombs",
+                    "nanson",
+                    "baldwin",
+                    "tideman-alternative",
+                    "minimax",
+                    "copeland",
+                    "black",
+                    "kemeny-young",
+                    "ranked-pairs",
+                    "schulze",
+                    "borda",
+                    "bucklin",
+                    "dodgson",
+                    "approval",
+                    "majority-judgment",
+                    "score",
+                    "star",
+                    "quadratic",
+                    "random-ballot",
+                    "maximal-lotteries",
+                    "sortition"
+                  ]
+                }
               }
             }
           }
         }
+      }
+    },
+    "/simulate": {
+      "post": {
+        "tags": [
+          "Simulations"
+        ],
+        "operationId": "simulateElection",
+        "summary": "Count ballots using a named method",
+        "description": "Ballot counts repeat identical voters; they are not score multipliers selected by voters. Candidate array order is the fixed priority for internal ties. Complete rankings are required for ranked methods. Two-round uses a fixed-preference simulation, not a second voter survey. Seeded lotteries return both a sampled winner and its distribution.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Election"
+              },
+              "examples": {
+                "plurality": {
+                  "summary": "Plurality (first past the post)",
+                  "value": {
+                    "method": "plurality",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "anti-plurality": {
+                  "summary": "Anti-plurality (veto)",
+                  "value": {
+                    "method": "anti-plurality",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "two-round": {
+                  "summary": "Two-round system",
+                  "value": {
+                    "method": "two-round",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "instant-runoff": {
+                  "summary": "Instant-runoff voting (IRV)",
+                  "value": {
+                    "method": "instant-runoff",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "coombs": {
+                  "summary": "Coombs’ method",
+                  "value": {
+                    "method": "coombs",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "nanson": {
+                  "summary": "Nanson’s method",
+                  "value": {
+                    "method": "nanson",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "baldwin": {
+                  "summary": "Baldwin’s method",
+                  "value": {
+                    "method": "baldwin",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "tideman-alternative": {
+                  "summary": "Tideman alternative (Smith)",
+                  "value": {
+                    "method": "tideman-alternative",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "minimax": {
+                  "summary": "Minimax (margins)",
+                  "value": {
+                    "method": "minimax",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "copeland": {
+                  "summary": "Copeland",
+                  "value": {
+                    "method": "copeland",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "black": {
+                  "summary": "Black’s method",
+                  "value": {
+                    "method": "black",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "kemeny-young": {
+                  "summary": "Kemeny–Young",
+                  "value": {
+                    "method": "kemeny-young",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "ranked-pairs": {
+                  "summary": "Ranked pairs",
+                  "value": {
+                    "method": "ranked-pairs",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "schulze": {
+                  "summary": "Schulze (beatpaths)",
+                  "value": {
+                    "method": "schulze",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "borda": {
+                  "summary": "Borda count",
+                  "value": {
+                    "method": "borda",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "bucklin": {
+                  "summary": "Bucklin voting",
+                  "value": {
+                    "method": "bucklin",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "dodgson": {
+                  "summary": "Dodgson’s method",
+                  "value": {
+                    "method": "dodgson",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 2
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "approval": {
+                  "summary": "Approval voting",
+                  "value": {
+                    "method": "approval",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A",
+                          "B"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "approvals": [
+                          "B",
+                          "C"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "C"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "majority-judgment": {
+                  "summary": "Majority judgment",
+                  "value": {
+                    "method": "majority-judgment",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "scores": {
+                          "A": 5,
+                          "B": 3,
+                          "C": 0
+                        },
+                        "count": 4
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 3
+                        },
+                        "count": 3
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 5
+                        },
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "score": {
+                  "summary": "Score voting (range voting)",
+                  "value": {
+                    "method": "score",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "scores": {
+                          "A": 5,
+                          "B": 3,
+                          "C": 0
+                        },
+                        "count": 4
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 3
+                        },
+                        "count": 3
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 5
+                        },
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "star": {
+                  "summary": "STAR voting",
+                  "value": {
+                    "method": "star",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "scores": {
+                          "A": 5,
+                          "B": 3,
+                          "C": 0
+                        },
+                        "count": 4
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 3
+                        },
+                        "count": 3
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 5
+                        },
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "quadratic": {
+                  "summary": "Quadratic voting (credit budget)",
+                  "value": {
+                    "method": "quadratic",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "credits": {
+                          "A": 5,
+                          "B": 3,
+                          "C": 0
+                        },
+                        "count": 4
+                      },
+                      {
+                        "credits": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 3
+                        },
+                        "count": 3
+                      },
+                      {
+                        "credits": {
+                          "A": 0,
+                          "B": 4,
+                          "C": 5
+                        },
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "random-ballot": {
+                  "summary": "Random ballot (random dictatorship)",
+                  "value": {
+                    "method": "random-ballot",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "maximal-lotteries": {
+                  "summary": "Maximal lotteries",
+                  "value": {
+                    "method": "maximal-lotteries",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C"
+                        ],
+                        "count": 4
+                      },
+                      {
+                        "ranking": [
+                          "B",
+                          "C",
+                          "A"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 2
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                },
+                "sortition": {
+                  "summary": "Sortition (uniform candidate lottery)",
+                  "value": {
+                    "method": "sortition",
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C"
+                    ],
+                    "ballots": [],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "seed": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Executed count, final co-winners or sampled winner, and method-specific trace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                },
+                "examples": {
+                  "plurality": {
+                    "value": {
+                      "method": "plurality",
+                      "winners": [
+                        "A"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 4,
+                            "B": 3,
+                            "C": 2
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "anti-plurality": {
+                    "value": {
+                      "method": "anti-plurality",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "vetoes": {
+                            "A": 5,
+                            "B": 0,
+                            "C": 4
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "two-round": {
+                    "value": {
+                      "method": "two-round",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "tally": {
+                            "A": 4,
+                            "B": 3,
+                            "C": 2
+                          }
+                        },
+                        {
+                          "round": 2,
+                          "active": [
+                            "A",
+                            "B"
+                          ],
+                          "tally": {
+                            "A": 4,
+                            "B": 5
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "instant-runoff": {
+                    "value": {
+                      "method": "instant-runoff",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "active": [
+                            "A",
+                            "B",
+                            "C"
+                          ],
+                          "tally": {
+                            "A": 4,
+                            "B": 3,
+                            "C": 2
+                          },
+                          "eliminated": [
+                            "C"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "A",
+                            "B"
+                          ],
+                          "tally": {
+                            "A": 4,
+                            "B": 5
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "coombs": {
+                    "value": {
+                      "method": "coombs",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "active": [
+                            "A",
+                            "B",
+                            "C"
+                          ],
+                          "tally": {
+                            "A": 5,
+                            "B": 0,
+                            "C": 4
+                          },
+                          "eliminated": [
+                            "A"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "B",
+                            "C"
+                          ],
+                          "tally": {
+                            "B": 7,
+                            "C": 2
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "nanson": {
+                    "value": {
+                      "method": "nanson",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "active": [
+                            "A",
+                            "B",
+                            "C"
+                          ],
+                          "tally": {
+                            "A": 8,
+                            "B": 12,
+                            "C": 7
+                          },
+                          "eliminated": [
+                            "A",
+                            "C"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "B"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "baldwin": {
+                    "value": {
+                      "method": "baldwin",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "active": [
+                            "A",
+                            "B",
+                            "C"
+                          ],
+                          "tally": {
+                            "A": 8,
+                            "B": 12,
+                            "C": 7
+                          },
+                          "eliminated": [
+                            "C"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "A",
+                            "B"
+                          ],
+                          "tally": {
+                            "A": 4,
+                            "B": 5
+                          },
+                          "eliminated": [
+                            "A"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "B"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "tideman-alternative": {
+                    "value": {
+                      "method": "tideman-alternative",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "active": [
+                            "A",
+                            "B",
+                            "C"
+                          ],
+                          "smith": [
+                            "B"
+                          ]
+                        },
+                        {
+                          "active": [
+                            "B"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "minimax": {
+                    "value": {
+                      "method": "minimax",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "worstDefeat": {
+                            "A": 1,
+                            "B": 0,
+                            "C": 5
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "copeland": {
+                    "value": {
+                      "method": "copeland",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "tally": {
+                            "A": 0,
+                            "B": 2,
+                            "C": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "black": {
+                    "value": {
+                      "method": "black",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "condorcet": [
+                            "B"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "kemeny-young": {
+                    "value": {
+                      "method": "kemeny-young",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "bestScore": 17,
+                          "optimalOrders": 1,
+                          "ranking": [
+                            "B",
+                            "C",
+                            "A"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "ranked-pairs": {
+                    "value": {
+                      "method": "ranked-pairs",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "edges": [
+                            {
+                              "from": "B",
+                              "to": "C",
+                              "strength": 7,
+                              "locked": true
+                            },
+                            {
+                              "from": "B",
+                              "to": "A",
+                              "strength": 5,
+                              "locked": true
+                            },
+                            {
+                              "from": "C",
+                              "to": "A",
+                              "strength": 5,
+                              "locked": true
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "schulze": {
+                    "value": {
+                      "method": "schulze",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "strongestPaths": {
+                            "A": {
+                              "A": 0,
+                              "B": 0,
+                              "C": 0
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 0
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "borda": {
+                    "value": {
+                      "method": "borda",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 8,
+                            "B": 12,
+                            "C": 7
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "bucklin": {
+                    "value": {
+                      "method": "bucklin",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "depth": 1,
+                          "tally": {
+                            "A": 4,
+                            "B": 3,
+                            "C": 2
+                          }
+                        },
+                        {
+                          "depth": 2,
+                          "tally": {
+                            "A": 4,
+                            "B": 9,
+                            "C": 5
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "dodgson": {
+                    "value": {
+                      "method": "dodgson",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 3,
+                              "C": 3
+                            },
+                            "B": {
+                              "A": 4,
+                              "B": 0,
+                              "C": 5
+                            },
+                            "C": {
+                              "A": 4,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "adjacentSwaps": {
+                            "A": 2,
+                            "B": 0,
+                            "C": 2
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "approval": {
+                    "value": {
+                      "method": "approval",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 4,
+                            "B": 7,
+                            "C": 5
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "majority-judgment": {
+                    "value": {
+                      "method": "majority-judgment",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "majorityGrades": {
+                            "A": 0,
+                            "B": 4,
+                            "C": 3
+                          },
+                          "histograms": {
+                            "A": [
+                              5,
+                              0,
+                              0,
+                              0,
+                              0,
+                              4
+                            ],
+                            "B": [
+                              0,
+                              0,
+                              0,
+                              4,
+                              5,
+                              0
+                            ],
+                            "C": [
+                              4,
+                              0,
+                              0,
+                              3,
+                              0,
+                              2
+                            ]
+                          }
+                        },
+                        {
+                          "medianGradesRemoved": 0,
+                          "remaining": [
+                            "B"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "score": {
+                    "value": {
+                      "method": "score",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 20,
+                            "B": 32,
+                            "C": 19
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "star": {
+                    "value": {
+                      "method": "star",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "stage": "score",
+                          "tally": {
+                            "A": 20,
+                            "B": 32,
+                            "C": 19
+                          },
+                          "finalists": [
+                            "B",
+                            "A"
+                          ]
+                        },
+                        {
+                          "stage": "runoff",
+                          "tally": {
+                            "B": 5,
+                            "A": 4
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "quadratic": {
+                    "value": {
+                      "method": "quadratic",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 20,
+                            "B": 32,
+                            "C": 19
+                          },
+                          "budget": 100
+                        }
+                      ]
+                    }
+                  },
+                  "random-ballot": {
+                    "value": {
+                      "method": "random-ballot",
+                      "winners": [
+                        "A"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 4,
+                            "B": 3,
+                            "C": 2
+                          },
+                          "seed": 1
+                        }
+                      ],
+                      "lottery": [
+                        {
+                          "candidate": "A",
+                          "probability": 0.4444444444444444
+                        },
+                        {
+                          "candidate": "B",
+                          "probability": 0.3333333333333333
+                        },
+                        {
+                          "candidate": "C",
+                          "probability": 0.2222222222222222
+                        }
+                      ]
+                    }
+                  },
+                  "maximal-lotteries": {
+                    "value": {
+                      "method": "maximal-lotteries",
+                      "winners": [
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 4,
+                              "C": 4
+                            },
+                            "B": {
+                              "A": 5,
+                              "B": 0,
+                              "C": 7
+                            },
+                            "C": {
+                              "A": 5,
+                              "B": 2,
+                              "C": 0
+                            }
+                          }
+                        },
+                        {
+                          "margins": [
+                            [
+                              0,
+                              -1,
+                              -1
+                            ],
+                            [
+                              1,
+                              0,
+                              5
+                            ],
+                            [
+                              1,
+                              -5,
+                              0
+                            ]
+                          ],
+                          "seed": 1
+                        }
+                      ],
+                      "lottery": [
+                        {
+                          "candidate": "A",
+                          "probability": 0.0
+                        },
+                        {
+                          "candidate": "B",
+                          "probability": 1.0
+                        },
+                        {
+                          "candidate": "C",
+                          "probability": 0.0
+                        }
+                      ]
+                    }
+                  },
+                  "sortition": {
+                    "value": {
+                      "method": "sortition",
+                      "winners": [
+                        "A"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "seed": 1
+                        }
+                      ],
+                      "lottery": [
+                        {
+                          "candidate": "A",
+                          "probability": 0.3333333333333333
+                        },
+                        {
+                          "candidate": "B",
+                          "probability": 0.3333333333333333
+                        },
+                        {
+                          "candidate": "C",
+                          "probability": 0.3333333333333333
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, method, ballot, option, or profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request body timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body or computation exceeds a published teaching limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Options": {
+        "type": "object",
+        "properties": {
+          "maxScore": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 5
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 100
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295,
+            "default": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "RankedBallot": {
+        "type": "object",
+        "properties": {
+          "ranking": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "ranking"
+        ],
+        "additionalProperties": false
+      },
+      "MarkBallot": {
+        "type": "object",
+        "properties": {
+          "choice": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "choice"
+        ],
+        "additionalProperties": false
+      },
+      "ApprovalBallot": {
+        "type": "object",
+        "properties": {
+          "approvals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "uniqueItems": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "approvals"
+        ],
+        "additionalProperties": false
+      },
+      "ScoreBallot": {
+        "type": "object",
+        "properties": {
+          "scores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "scores"
+        ],
+        "additionalProperties": false
+      },
+      "CreditBallot": {
+        "type": "object",
+        "properties": {
+          "credits": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": -1000,
+              "maximum": 1000
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "credits"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Result": {
+        "type": "object",
+        "required": [
+          "method",
+          "winners",
+          "tie",
+          "trace"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "plurality",
+              "anti-plurality",
+              "two-round",
+              "instant-runoff",
+              "coombs",
+              "nanson",
+              "baldwin",
+              "tideman-alternative",
+              "minimax",
+              "copeland",
+              "black",
+              "kemeny-young",
+              "ranked-pairs",
+              "schulze",
+              "borda",
+              "bucklin",
+              "dodgson",
+              "approval",
+              "majority-judgment",
+              "score",
+              "star",
+              "quadratic",
+              "random-ballot",
+              "maximal-lotteries",
+              "sortition"
+            ]
+          },
+          "winners": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1
+          },
+          "tie": {
+            "type": "boolean",
+            "description": "True when the final result contains multiple co-winners."
+          },
+          "trace": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "lottery": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "candidate": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "probability": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "candidate",
+                "probability"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "RankedElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "two-round",
+              "instant-runoff",
+              "coombs",
+              "nanson",
+              "baldwin",
+              "tideman-alternative",
+              "minimax",
+              "copeland",
+              "black",
+              "kemeny-young",
+              "ranked-pairs",
+              "schulze",
+              "borda",
+              "bucklin",
+              "dodgson",
+              "maximal-lotteries"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RankedBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MarkedElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "plurality",
+              "anti-plurality",
+              "random-ballot"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/MarkBallot"
+                },
+                {
+                  "$ref": "#/components/schemas/RankedBallot"
+                }
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "ApprovalElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "approval"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "ScoredElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "score",
+              "star",
+              "majority-judgment"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScoreBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "QuadraticElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "quadratic"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "SortitionElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "sortition"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ballots": {
+            "type": "array",
+            "items": {},
+            "maxItems": 0
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "Election": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RankedElection"
+          },
+          {
+            "$ref": "#/components/schemas/MarkedElection"
+          },
+          {
+            "$ref": "#/components/schemas/ApprovalElection"
+          },
+          {
+            "$ref": "#/components/schemas/ScoredElection"
+          },
+          {
+            "$ref": "#/components/schemas/QuadraticElection"
+          },
+          {
+            "$ref": "#/components/schemas/SortitionElection"
+          }
+        ],
+        "description": "Use the ballot format accepted by the chosen method. Rankings must list every candidate exactly once. Score and credit maps must include every candidate. Additional numeric and computation limits are documented in the API guide and enforced by the server."
       }
     }
   }
