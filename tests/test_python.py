@@ -70,6 +70,16 @@ class CountingTests(unittest.TestCase):
         value = ranked("instant-runoff")
         self.assertEqual(value["trace"][0]["eliminated"], ["C"])
 
+    def test_runoff_ties_preserve_original_candidate_order(self):
+        # B leads the qualifying score but A and B tie head-to-head.
+        scores = [{"scores": {"A": 1, "B": 5, "C": 0}},
+                  {"scores": {"A": 2, "B": 0, "C": 0}}]
+        self.assertEqual(ranked("star", scores)["winners"], ["A", "B"])
+        ballots = [{"ranking": ["B", "A", "C"], "count": 3},
+                   {"ranking": ["A", "B", "C"], "count": 2},
+                   {"ranking": ["C", "A", "B"]}]
+        self.assertEqual(ranked("two-round", ballots)["winners"], ["A", "B"])
+
     def test_dodgson_scores_are_strict_condorcet_swap_counts(self):
         value = ranked("dodgson", [{"ranking": ["A", "B", "C"], "count": 2}])
         self.assertEqual(value["trace"][1]["adjacentSwaps"], {"A": 0, "B": 2, "C": 4})

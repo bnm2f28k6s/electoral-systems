@@ -163,7 +163,7 @@ def count_two_round(c, ballots, options):
     finalists = sorted(c, key=lambda x: -first[x])[:2]
     tally = first_counts(finalists, ballots)
     trace.append({"round": 2, "active": finalists, "tally": tally})
-    return result(best(tally), trace)
+    return result([x for x in c if x in best(tally)], trace)
 
 
 def elimination(c, ballots, mode):
@@ -369,7 +369,7 @@ def count_star(c, ballots, options):
     a, b = finalists
     runoff = {a: sum(v["count"] for v in ballots if v["scores"][a] > v["scores"][b]), b: sum(v["count"] for v in ballots if v["scores"][b] > v["scores"][a])}
     trace.append({"stage": "runoff", "tally": runoff})
-    return result(best(runoff), trace)
+    return result([x for x in c if x in best(runoff)], trace)
 
 
 def count_majority_judgment(c, ballots, options):
