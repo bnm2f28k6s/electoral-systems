@@ -40,12 +40,19 @@ assert.deepEqual(simulate(cyclic).lottery, [{candidate: 'A', probability: .6}, {
 
 // Condorcet cycle: no candidate wins without a cycle-resolution rule.
 const cycle = [{ranking: ['A', 'B', 'C']}, {ranking: ['B', 'C', 'A']}, {ranking: ['C', 'A', 'B']}];
-for (const method of ['instant-runoff', 'baldwin', 'nanson', 'coombs', 'copeland', 'minimax', 'schulze', 'kemeny-young', 'dodgson']) {
+for (const method of ['nanson', 'copeland', 'minimax', 'schulze', 'kemeny-young', 'dodgson']) {
   const answer = simulate({method, candidates, ballots: cycle});
   assert.deepEqual(answer.winners, candidates, `unresolved symmetric cycle for ${method}`);
   assert.equal(answer.tie, true);
 }
-assert.deepEqual(simulate({method: 'ranked-pairs', candidates, ballots: cycle}).winners, ['A']);
+for (const method of ['instant-runoff', 'coombs', 'baldwin', 'tideman-alternative', 'ranked-pairs']) {
+  assert.deepEqual(simulate({method, candidates, ballots: cycle}).winners, ['A']);
+}
+// A first-place tie is intermediate when three candidates remain. Eliminating C
+// allows the mutual majority for A and B to transfer to its preferred survivor.
+assert.deepEqual(simulate({method: 'instant-runoff', candidates, ballots: [
+  {ranking: ['A', 'B', 'C']}, {ranking: ['B', 'A', 'C']}, {ranking: ['C', 'A', 'B']},
+]}).winners, ['A']);
 
 // Tied internal last places favor the earlier candidate, while a final tie is retained.
 const irv = simulate({method: 'instant-runoff', candidates, ballots: [

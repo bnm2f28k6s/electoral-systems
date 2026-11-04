@@ -197,7 +197,7 @@ function elimination(ctx: Context, mode: string): SimulationResult {
       worst = best(active, tally, true);
     } else worst = best(active, tally, true);
     const row: Record<string, unknown> = {active: [...active], tally};
-    if (new Set(Object.values(tally)).size === 1) { trace.push(row); return result(ctx, active, trace); }
+    if (new Set(Object.values(tally)).size === 1 && (mode === 'nanson' || active.length === 2)) { trace.push(row); return result(ctx, active, trace); }
     const eliminated = mode === 'nanson'
       ? active.filter(c => tally[c] * active.length <= Object.values(tally).reduce((a, b) => a + b, 0))
       : [worst.at(-1)!];
