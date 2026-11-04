@@ -2,6 +2,8 @@
   items:
     - label: Introduction
       href: /
+    - label: Compare systems
+      href: /comparison.md
     - label: Method catalog
       href: /methods.md
     - label: Ballots and ties

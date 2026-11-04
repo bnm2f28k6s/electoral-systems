@@ -6,6 +6,8 @@ Start with [plurality](/methods/plurality.md): each voter supports one candidate
 
 ## Follow a ballot through the count
 
+Use the [interactive comparison](/comparison.md) to compare ballot formats, counting families, and criteria. Filter by exact assessments, choose columns, and open the assumptions behind each cell.
+
 <Steps>
   <Step title="Choose the ballot format">
     A single mark, an ordered ranking, approvals, and numerical scores convey different information. Read the [ballot guide](/ballots.md) before comparing results.

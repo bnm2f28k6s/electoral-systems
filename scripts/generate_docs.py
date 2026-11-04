@@ -199,7 +199,7 @@ def main():
     catalog += "\n".join(f'| [{m["name"]}](/methods/{m["id"]}.md) | {md_cell(m["ballot"])} | {md_cell(m["summary"])} |' for m in methods)
     (ROOT / "site/methods.md").write_text(catalog + "\n\nRead [ballot formats](/ballots.md) and [criteria](/criteria.md) to understand the assumptions behind comparisons. [Sources](/sources.md) explain the research boundaries.\n")
     navigation = "- heading: Learn\n  items:\n"
-    for label, href in (("Introduction", "/"), ("Method catalog", "/methods.md"), ("Ballots and ties", "/ballots.md"), ("Criteria", "/criteria.md"), ("Sources", "/sources.md"), ("Local simulation API", "/api-design.md")):
+    for label, href in (("Introduction", "/"), ("Compare systems", "/comparison.md"), ("Method catalog", "/methods.md"), ("Ballots and ties", "/ballots.md"), ("Criteria", "/criteria.md"), ("Sources", "/sources.md"), ("Local simulation API", "/api-design.md")):
         navigation += f"    - label: {label}\n      href: {href}\n"
     for family in dict.fromkeys(m["family"] for m in methods):
         navigation += f"- heading: {json.dumps(family)}\n  items:\n"
