@@ -2,6 +2,7 @@
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from socket import timeout as SocketTimeout
 from urllib.parse import urlsplit
 
 from electoral import ElectionError, METHODS, reject_constant, simulate
@@ -10,6 +11,8 @@ MAX_BYTES = 1024 * 1024
 
 
 class Handler(BaseHTTPRequestHandler):
+    body_timeout = 10
+
     def send_json(self, status, data):
         encoded = json.dumps(data, ensure_ascii=False, allow_nan=False).encode("utf-8")
         self.send_response(status)
@@ -41,18 +44,18 @@ class Handler(BaseHTTPRequestHandler):
                 raise ElectionError("Request body exceeds 1 MiB", 413)
             if self.headers.get_content_type() != "application/json":
                 raise ElectionError("Content-Type must be application/json", 415)
-            self.connection.settimeout(10)
+            self.connection.settimeout(self.body_timeout)
             body = self.rfile.read(length)
             if len(body) != length:
                 raise ElectionError("Incomplete request body")
             try:
                 request = json.loads(body.decode("utf-8"), parse_constant=reject_constant)
-            except (UnicodeDecodeError, json.JSONDecodeError):
+            except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
                 raise ElectionError("Request must be valid UTF-8 JSON")
             self.send_json(200, simulate(request))
         except ElectionError as error:
             self.send_json(error.status, {"error": str(error)})
-        except TimeoutError:
+        except (TimeoutError, SocketTimeout):
             self.send_json(408, {"error": "Request body timed out"})
 
 

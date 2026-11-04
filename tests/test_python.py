@@ -233,6 +233,8 @@ class CountingTests(unittest.TestCase):
 
 
 class QuietHandler(Handler):
+    body_timeout = 0.05
+
     def log_message(self, *args):
         pass
 
@@ -267,9 +269,15 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(data, simulate(request))
 
+    def test_incomplete_request_body_times_out_as_json(self):
+        status, data = self.request("POST", "/simulate", "{}", {"Content-Type": "application/json", "Content-Length": "10"})
+        self.assertEqual(status, 408)
+        self.assertEqual(data, {"error": "Request body timed out"})
+
     def test_json_errors_and_http_statuses(self):
         self.assertEqual(self.request("POST", "/simulate", "{", {"Content-Type": "application/json"})[0], 400)
         self.assertEqual(self.request("POST", "/simulate", '{"unexpected":NaN}', {"Content-Type": "application/json"})[0], 400)
+        self.assertEqual(self.request("POST", "/simulate", "["*1100+"]"*1100, {"Content-Type": "application/json"})[0], 400)
         self.assertEqual(self.request("POST", "/simulate", "{}", {"Content-Type": "text/plain"})[0], 415)
         self.assertEqual(self.request("GET", "/absent")[0], 404)
         self.assertEqual(self.request("POST", "/absent", "{}")[0], 404)
