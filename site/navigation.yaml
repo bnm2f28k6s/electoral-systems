@@ -1,11 +1,91 @@
-- heading: Project
+- heading: Learn
   items:
     - label: Introduction
       href: /
-    - label: Algorithm chapter template
-      href: /algorithm-template.md
-    - label: API design proposal
+    - label: Method catalog
+      href: /methods.md
+    - label: Ballots and ties
+      href: /ballots.md
+    - label: Criteria
+      href: /criteria.md
+    - label: Sources
+      href: /sources.md
+    - label: Local simulation API
       href: /api-design.md
-- heading: Draft API reference
+- heading: "Single mark"
+  items:
+    - label: "Plurality (first past the post)"
+      href: /methods/plurality.md
+    - label: "Anti-plurality (veto)"
+      href: /methods/anti-plurality.md
+- heading: "Runoff"
+  items:
+    - label: "Two-round system"
+      href: /methods/two-round.md
+- heading: "Elimination"
+  items:
+    - label: "Instant-runoff voting (IRV)"
+      href: /methods/instant-runoff.md
+    - label: "Coombs\u2019 method"
+      href: /methods/coombs.md
+    - label: "Nanson\u2019s method"
+      href: /methods/nanson.md
+    - label: "Baldwin\u2019s method"
+      href: /methods/baldwin.md
+- heading: "Condorcet hybrid"
+  items:
+    - label: "Tideman alternative (Smith)"
+      href: /methods/tideman-alternative.md
+    - label: "Black\u2019s method"
+      href: /methods/black.md
+- heading: "Pairwise"
+  items:
+    - label: "Minimax (margins)"
+      href: /methods/minimax.md
+    - label: "Copeland"
+      href: /methods/copeland.md
+    - label: "Ranked pairs"
+      href: /methods/ranked-pairs.md
+    - label: "Schulze (beatpaths)"
+      href: /methods/schulze.md
+- heading: "Consensus ranking"
+  items:
+    - label: "Kemeny\u2013Young"
+      href: /methods/kemeny-young.md
+- heading: "Positional scoring"
+  items:
+    - label: "Borda count"
+      href: /methods/borda.md
+- heading: "Cumulative ranking"
+  items:
+    - label: "Bucklin voting"
+      href: /methods/bucklin.md
+- heading: "Distance to Condorcet"
+  items:
+    - label: "Dodgson\u2019s method"
+      href: /methods/dodgson.md
+- heading: "Cardinal"
+  items:
+    - label: "Approval voting"
+      href: /methods/approval.md
+    - label: "Majority judgment"
+      href: /methods/majority-judgment.md
+    - label: "Score voting (range voting)"
+      href: /methods/score.md
+    - label: "Quadratic voting (credit budget)"
+      href: /methods/quadratic.md
+- heading: "Cardinal runoff"
+  items:
+    - label: "STAR voting"
+      href: /methods/star.md
+- heading: "Lottery"
+  items:
+    - label: "Random ballot (random dictatorship)"
+      href: /methods/random-ballot.md
+    - label: "Maximal lotteries"
+      href: /methods/maximal-lotteries.md
+    - label: "Sortition (uniform candidate lottery)"
+      href: /methods/sortition.md
+- heading: API reference
   items:
     - open_api_spec: openapi.json

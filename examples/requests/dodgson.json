@@ -1,0 +1,39 @@
+{
+  "method": "dodgson",
+  "candidates": [
+    "A",
+    "B",
+    "C"
+  ],
+  "ballots": [
+    {
+      "ranking": [
+        "A",
+        "B",
+        "C"
+      ],
+      "count": 3
+    },
+    {
+      "ranking": [
+        "B",
+        "C",
+        "A"
+      ],
+      "count": 2
+    },
+    {
+      "ranking": [
+        "C",
+        "B",
+        "A"
+      ],
+      "count": 2
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "seed": 1
+  }
+}

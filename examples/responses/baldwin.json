@@ -1,0 +1,42 @@
+{
+  "method": "baldwin",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "active": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tally": {
+        "A": 8,
+        "B": 12,
+        "C": 7
+      },
+      "eliminated": [
+        "C"
+      ]
+    },
+    {
+      "active": [
+        "A",
+        "B"
+      ],
+      "tally": {
+        "A": 4,
+        "B": 5
+      },
+      "eliminated": [
+        "A"
+      ]
+    },
+    {
+      "active": [
+        "B"
+      ]
+    }
+  ]
+}

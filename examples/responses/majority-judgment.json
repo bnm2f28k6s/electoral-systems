@@ -1,0 +1,48 @@
+{
+  "method": "majority-judgment",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "majorityGrades": {
+        "A": 0,
+        "B": 4,
+        "C": 3
+      },
+      "histograms": {
+        "A": [
+          5,
+          0,
+          0,
+          0,
+          0,
+          4
+        ],
+        "B": [
+          0,
+          0,
+          0,
+          4,
+          5,
+          0
+        ],
+        "C": [
+          4,
+          0,
+          0,
+          3,
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "medianGradesRemoved": 0,
+      "remaining": [
+        "B"
+      ]
+    }
+  ]
+}

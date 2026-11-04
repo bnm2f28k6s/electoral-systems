@@ -1,0 +1,62 @@
+{
+  "method": "maximal-lotteries",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "pairwise": {
+        "A": {
+          "A": 0,
+          "B": 4,
+          "C": 4
+        },
+        "B": {
+          "A": 5,
+          "B": 0,
+          "C": 7
+        },
+        "C": {
+          "A": 5,
+          "B": 2,
+          "C": 0
+        }
+      }
+    },
+    {
+      "margins": [
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          1,
+          0,
+          5
+        ],
+        [
+          1,
+          -5,
+          0
+        ]
+      ],
+      "seed": 1
+    }
+  ],
+  "lottery": [
+    {
+      "candidate": "A",
+      "probability": 0.0
+    },
+    {
+      "candidate": "B",
+      "probability": 1.0
+    },
+    {
+      "candidate": "C",
+      "probability": 0.0
+    }
+  ]
+}

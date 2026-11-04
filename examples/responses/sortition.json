@@ -1,0 +1,26 @@
+{
+  "method": "sortition",
+  "winners": [
+    "A"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "seed": 1
+    }
+  ],
+  "lottery": [
+    {
+      "candidate": "A",
+      "probability": 0.3333333333333333
+    },
+    {
+      "candidate": "B",
+      "probability": 0.3333333333333333
+    },
+    {
+      "candidate": "C",
+      "probability": 0.3333333333333333
+    }
+  ]
+}

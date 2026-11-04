@@ -1,0 +1,35 @@
+{
+  "method": "approval",
+  "candidates": [
+    "A",
+    "B",
+    "C"
+  ],
+  "ballots": [
+    {
+      "approvals": [
+        "A",
+        "B"
+      ],
+      "count": 4
+    },
+    {
+      "approvals": [
+        "B",
+        "C"
+      ],
+      "count": 3
+    },
+    {
+      "approvals": [
+        "C"
+      ],
+      "count": 2
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "seed": 1
+  }
+}

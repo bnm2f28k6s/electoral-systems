@@ -1,0 +1,16 @@
+{
+  "method": "approval",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 4,
+        "B": 7,
+        "C": 5
+      }
+    }
+  ]
+}

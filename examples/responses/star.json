@@ -1,0 +1,28 @@
+{
+  "method": "star",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "stage": "score",
+      "tally": {
+        "A": 20,
+        "B": 32,
+        "C": 19
+      },
+      "finalists": [
+        "B",
+        "A"
+      ]
+    },
+    {
+      "stage": "runoff",
+      "tally": {
+        "B": 5,
+        "A": 4
+      }
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+[
+  {
+    "id": "majority-ranked",
+    "name": "Ranked majority",
+    "category": "Absolute result",
+    "definition": "If the same group of more than half of voters each ranks a candidate uniquely first, that candidate must win. This differs from head-to-head victories formed by different majorities.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "majority-rated",
+    "name": "Rated majority",
+    "category": "Absolute result",
+    "definition": "A candidate uniquely given the maximum permitted rating by more than half of voters must win. This is weaker than ranked majority for cardinal ballots. For ranked ballots use the first-place majority interpretation.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "majority-loser",
+    "name": "Majority loser",
+    "category": "Absolute result",
+    "definition": "A candidate ranked strictly last by more than half the electorate must not win.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "mutual-majority",
+    "name": "Mutual majority",
+    "category": "Absolute result",
+    "definition": "If more than half the voters put every member of a set above every outsider, the winner must come from that set.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "condorcet-winner",
+    "name": "Condorcet winner",
+    "category": "Absolute result",
+    "definition": "A candidate preferred to each rival by a strict head-to-head majority must win. Different voters may form each majority.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "condorcet-loser",
+    "name": "Condorcet loser",
+    "category": "Absolute result",
+    "definition": "A candidate who loses every head-to-head majority comparison must not win.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "weak-pareto",
+    "name": "Weak Pareto",
+    "category": "Absolute result",
+    "definition": "If everyone strictly prefers A to B, B must not win. For numeric ballots distinguish strictly larger submitted numbers from hidden preferences.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "strong-pareto",
+    "name": "Strong Pareto",
+    "category": "Absolute result",
+    "definition": "If everyone weakly prefers A to B and someone strictly prefers A, B must not win. This equals weak Pareto on a domain of complete strict rankings.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/dominance_axioms.html"
+  },
+  {
+    "id": "smith",
+    "name": "Smith set",
+    "category": "Absolute result",
+    "definition": "The winner must lie in the smallest nonempty set whose members each strictly beat every outsider head-to-head. With tied pairwise contests, retain the full smallest strictly dominating set.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/c1_methods.html"
+  },
+  {
+    "id": "smith-iia",
+    "name": "Smith independence",
+    "category": "Relative result",
+    "definition": "Removing candidates outside the Smith set must leave the outcome within the Smith set unchanged. The definition assumes the same comparisons among retained candidates.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_candidate_axioms.html"
+  },
+  {
+    "id": "ipda",
+    "name": "Independence of Pareto-dominated alternatives",
+    "category": "Relative result",
+    "definition": "Adding or removing an alternative unanimously ranked below another must not change the outcome among the remaining alternatives.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_candidate_axioms.html"
+  },
+  {
+    "id": "iia",
+    "name": "Independence of irrelevant alternatives",
+    "category": "Relative result",
+    "definition": "Adding or removing a nonwinning candidate must not change the winner among the others when their relative preferences stay fixed. For ratings, unchanged absolute scores are a separate assumption.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_candidate_axioms.html"
+  },
+  {
+    "id": "liia",
+    "name": "Local independence of irrelevant alternatives",
+    "category": "Relative result",
+    "definition": "In a social ordering, deleting the top or bottom candidate must preserve the relative order of the remaining candidates. A winner-only API does not itself expose this ordering.",
+    "source": "https://cgi.cse.unsw.edu.au/~haziz/comsoc.pdf"
+  },
+  {
+    "id": "clone-independence",
+    "name": "Independence of clones",
+    "category": "Relative result",
+    "definition": "Replace a candidate with a group always adjacent in every ranking: outsiders should keep their winning status, and a winning original should be replaced by a winning group member.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_candidate_axioms.html"
+  },
+  {
+    "id": "monotonicity",
+    "name": "Monotonicity",
+    "category": "Relative result",
+    "definition": "Raising a winner in some ballots, with other comparisons unchanged, must not make that candidate lose. For a lottery compare winning probabilities.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/monotonicity_axioms.html"
+  },
+  {
+    "id": "consistency",
+    "name": "Consistency / reinforcement",
+    "category": "Relative result",
+    "definition": "If the same candidate uniquely wins two separate electorates, that candidate must win their union. For lotteries an extension compares common lottery outcomes instead of sampled winners.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_voter_axioms.html"
+  },
+  {
+    "id": "participation",
+    "name": "Participation",
+    "category": "Relative result",
+    "definition": "Joining with an honest ballot must not yield an outcome the new voter likes less than the result without that ballot. Ties and lotteries require an explicit preference extension.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/variable_voter_axioms.html"
+  },
+  {
+    "id": "reversal-symmetry",
+    "name": "Reversal symmetry",
+    "category": "Relative result",
+    "definition": "If every strict ranking is reversed, a previous unique winner must not remain the unique winner. For ratings reverse the common numeric scale; lotteries require a probabilistic interpretation.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/invariance_axioms.html"
+  },
+  {
+    "id": "homogeneity",
+    "name": "Homogeneity",
+    "category": "Relative result",
+    "definition": "Replicating every ballot the same positive integer number of times must preserve the winner set or lottery distribution.",
+    "source": "https://pref-voting.readthedocs.io/en/stable/invariance_axioms.html"
+  },
+  {
+    "id": "polynomial-time",
+    "name": "Polynomial counting time",
+    "category": "Counting",
+    "definition": "Can the winner be found in time polynomial in the candidate count and linear in the number of ballots, apart from tally arithmetic? This describes a rule and an algorithm, not the effect of a fixed demonstration cap.",
+    "source": "https://cgi.cse.unsw.edu.au/~haziz/comsoc.pdf"
+  },
+  {
+    "id": "resolvability",
+    "name": "Resolvability",
+    "category": "Counting",
+    "definition": "Under the usual large-electorate model, does the frequency of unresolved winner ties tend to zero? Deterministic tie-breaking or a fixed random seed alone does not establish this property.",
+    "source": "https://arxiv.org/abs/1804.02973"
+  },
+  {
+    "id": "summability",
+    "name": "Summability",
+    "category": "Counting",
+    "definition": "Can precinct summaries be added before counting the winner? State how the summary size grows with candidate count m; preserving all m! ranking types is very different from m candidate totals.",
+    "source": "https://www.starvoting.org/faq"
+  },
+  {
+    "id": "later-no-harm",
+    "name": "Later no harm",
+    "category": "Strategy",
+    "definition": "Adding a lower preference must never harm a candidate already preferred above it. Completing the restricted ranked ballots accepted by this demo is not an available operation; the general rule is assessed.",
+    "source": "https://www.votingmatters.org.uk/issue6/P4.HTM"
+  },
+  {
+    "id": "later-no-help",
+    "name": "Later no help",
+    "category": "Strategy",
+    "definition": "Adding a lower preference must never help a candidate already preferred above it. This differs from later no harm.",
+    "source": "https://www.votingmatters.org.uk/issue6/P4.HTM"
+  },
+  {
+    "id": "favorite-betrayal",
+    "name": "No favorite betrayal",
+    "category": "Strategy",
+    "definition": "A voter must never need to put somebody strictly above a sincere favorite to obtain a better outcome. Allowing an equal top grade is different from reversing two strict preferences.",
+    "source": "https://arxiv.org/abs/1008.4331"
+  }
+]

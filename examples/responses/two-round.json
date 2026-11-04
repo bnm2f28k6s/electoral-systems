@@ -1,0 +1,28 @@
+{
+  "method": "two-round",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "round": 1,
+      "tally": {
+        "A": 4,
+        "B": 3,
+        "C": 2
+      }
+    },
+    {
+      "round": 2,
+      "active": [
+        "A",
+        "B"
+      ],
+      "tally": {
+        "A": 4,
+        "B": 5
+      }
+    }
+  ]
+}

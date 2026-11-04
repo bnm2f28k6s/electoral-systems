@@ -1,0 +1,321 @@
+# Kemeny–Young
+
+Find a full social ranking that agrees with as many voter pairwise comparisons as possible. Its first candidate wins.
+
+**Ballot:** ranking. **API identifier:** `kemeny-young`.
+
+## Counting rule
+
+1. Count the number of ballots preferring each candidate to each rival.
+2. For each possible order, sum support for the pairs oriented in that order.
+3. Keep every maximum-score order and return the candidates that can head one.
+
+**Variant used here:** Exact exhaustive search, retaining all optimal top candidates.
+
+**Ties:** Final equal best candidates are returned together. When a stage needs a single choice, the earlier candidate in the submitted candidates array has priority; this is part of the simulation, not a claim about every implementation. See [shared tie handling](/ballots.md#ties) for how candidate priority affects internal decisions.
+
+## Worked example
+
+Use the [nine-voter profile](/ballots.md#the-nine-voter-example) below. The `count` field groups identical ballots. Approval, grade, and credit values are explicitly supplied rather than inferred from rankings.
+
+```json
+{
+  "method": "kemeny-young",
+  "candidates": [
+    "A",
+    "B",
+    "C"
+  ],
+  "ballots": [
+    {
+      "ranking": [
+        "A",
+        "B",
+        "C"
+      ],
+      "count": 4
+    },
+    {
+      "ranking": [
+        "B",
+        "C",
+        "A"
+      ],
+      "count": 3
+    },
+    {
+      "ranking": [
+        "C",
+        "B",
+        "A"
+      ],
+      "count": 2
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "seed": 1
+  }
+}
+```
+
+The result is **B**. The trace records intermediate totals, eliminations, comparisons, or the lottery used by this rule.
+
+```json
+{
+  "method": "kemeny-young",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "pairwise": {
+        "A": {
+          "A": 0,
+          "B": 4,
+          "C": 4
+        },
+        "B": {
+          "A": 5,
+          "B": 0,
+          "C": 7
+        },
+        "C": {
+          "A": 5,
+          "B": 2,
+          "C": 0
+        }
+      }
+    },
+    {
+      "bestScore": 17,
+      "optimalOrders": 1,
+      "ranking": [
+        "B",
+        "C",
+        "A"
+      ]
+    }
+  ]
+}
+```
+
+## Run the algorithm
+
+Each block is a complete program with its sample input and required helpers. Python requires 3.9 or newer; TypeScript runs directly with Node 22.18 or newer. Replace the sample with valid input using the same format. The examples focus on counting valid data; the [API server](/api-design.md) performs full validation before running the count.
+
+<CodeSelect title="Kemeny–Young — complete algorithm">
+
+```python
+# Python 3.9+. Save as example.py and run: python3 example.py
+# Self-contained count for valid input; the API also validates requests.
+import itertools
+import json
+import sys
+from fractions import Fraction
+
+def result(winners, trace, **extra):
+    return {"winners": winners, "trace": trace, **extra}
+
+def pairwise(c, ballots):
+    p = {x: dict.fromkeys(c, 0) for x in c}
+    for b in ballots:
+        for i, x in enumerate(b["ranking"]):
+            for y in b["ranking"][i+1:]:
+                p[x][y] += b["count"]
+    return p
+
+def count_kemeny_young(c, ballots, options):
+    p = pairwise(c, ballots)
+    high = -1
+    winners = set()
+    optimal_orders = 0
+    first_order = None
+    for order in itertools.permutations(c):
+        score = sum(p[x][y] for i, x in enumerate(order) for y in order[i+1:])
+        if score > high:
+            high, winners, optimal_orders, first_order = score, {order[0]}, 1, list(order)
+        elif score == high:
+            winners.add(order[0])
+            optimal_orders += 1
+    return result([x for x in c if x in winners], [{"pairwise": p}, {"bestScore": high, "optimalOrders": optimal_orders, "ranking": first_order}])
+
+election = {'method': 'kemeny-young', 'candidates': ['A', 'B', 'C'], 'ballots': [{'ranking': ['A', 'B', 'C'], 'count': 4}, {'ranking': ['B', 'C', 'A'], 'count': 3}, {'ranking': ['C', 'B', 'A'], 'count': 2}], 'options': {'maxScore': 5, 'budget': 100, 'seed': 1}}
+counted = count_kemeny_young(election["candidates"], election["ballots"], election["options"])
+answer = {"method": election["method"], **counted, "tie": len(counted["winners"]) > 1}
+print(json.dumps(answer, indent=2))
+```
+
+```typescript
+// Node 22.18+ (native TypeScript). Save as example.ts; run: node example.ts
+// Self-contained count for valid input; the API also validates requests.
+export const METHODS = [
+  'plurality', 'anti-plurality', 'two-round', 'instant-runoff', 'coombs',
+  'nanson', 'baldwin', 'tideman-alternative', 'minimax', 'copeland', 'black',
+  'kemeny-young', 'ranked-pairs', 'schulze', 'borda', 'bucklin', 'dodgson',
+  'approval', 'majority-judgment', 'score', 'star', 'quadratic', 'random-ballot',
+  'maximal-lotteries', 'sortition',
+] as const;
+export type Method = typeof METHODS[number];
+export type Ballot = { count?: number; ranking?: string[]; choice?: string;
+  approvals?: string[]; scores?: Record<string, number>; credits?: Record<string, number> };
+export type ElectionRequest = { method: Method; candidates: string[]; ballots: Ballot[];
+  options?: { maxScore?: number; budget?: number; seed?: number } };
+export type Trace = Record<string, unknown>[];
+export type SimulationResult = { method: Method; winners: string[]; tie: boolean;
+  trace: Trace; lottery?: { candidate: string; probability: number }[] };
+type Context = { method: Method; candidates: string[]; ballots: (Ballot & {count: number})[];
+  maxScore: number; budget: number; seed: number; total: number };
+type Tally = Record<string, number>;
+type Pairwise = Record<string, Tally>;
+type Fraction = [bigint, bigint];
+export class ElectionError extends Error {
+  status: number;
+  constructor(message: string, status = 400) { super(message); this.name = 'ElectionError'; this.status = status; }
+}
+
+function zeros(candidates: string[]): Tally { return Object.fromEntries(candidates.map(c => [c, 0])); }
+
+function result(ctx: Context, winners: string[], trace: Trace, lottery?: number[]): SimulationResult {
+  const ordered = ctx.candidates.filter(c => winners.includes(c));
+  const answer: SimulationResult = { method: ctx.method, winners: ordered, tie: ordered.length > 1, trace };
+  if (lottery) answer.lottery = ctx.candidates.map((candidate, i) => ({candidate, probability: lottery[i]}));
+  return answer;
+}
+
+function pairwise(ctx: Context): Pairwise {
+  const matrix = Object.fromEntries(ctx.candidates.map(c => [c, zeros(ctx.candidates)]));
+  for (const b of ctx.ballots) for (let i = 0; i < b.ranking!.length; i++) for (let j = i + 1; j < b.ranking!.length; j++)
+    matrix[b.ranking![i]][b.ranking![j]] += b.count;
+  return matrix;
+}
+
+function* permutations<T>(items: T[]): Generator<T[]> {
+  if (!items.length) { yield []; return; }
+  for (let i = 0; i < items.length; i++) for (const rest of permutations(items.filter((_, j) => j !== i))) yield [items[i], ...rest];
+}
+
+export function countKemenyYoung(ctx: Context): SimulationResult {
+  const matrix = pairwise(ctx);
+  let maximum = -1;
+  let order: string[] = [];
+  let optimalOrders = 0;
+  const leaders = new Set<string>();
+  for (const ranking of permutations(ctx.candidates)) {
+    let score = 0;
+    for (let i = 0; i < ranking.length; i++) for (let j = i + 1; j < ranking.length; j++) score += matrix[ranking[i]][ranking[j]];
+    if (score > maximum) { maximum = score; order = ranking; leaders.clear(); optimalOrders = 0; }
+    if (score === maximum) { leaders.add(ranking[0]); optimalOrders++; }
+  }
+  return result(ctx, ctx.candidates.filter(c => leaders.has(c)), [{pairwise: matrix}, {bestScore: maximum, optimalOrders, ranking: order}]);
+}
+
+function gcd(a: bigint, b: bigint): bigint { while (b) { const t = b; b = a % b; a = t; } return a < 0n ? -a : a; }
+
+function fraction(n: bigint, d = 1n): Fraction { if (d < 0n) { n = -n; d = -d; } const g = gcd(n, d); return [n / g, d / g]; }
+
+function add(a: Fraction, b: Fraction): Fraction { return fraction(a[0] * b[1] + b[0] * a[1], a[1] * b[1]); }
+
+const election: Context = {
+  "method": "kemeny-young",
+  "candidates": [
+    "A",
+    "B",
+    "C"
+  ],
+  "ballots": [
+    {
+      "ranking": [
+        "A",
+        "B",
+        "C"
+      ],
+      "count": 4
+    },
+    {
+      "ranking": [
+        "B",
+        "C",
+        "A"
+      ],
+      "count": 3
+    },
+    {
+      "ranking": [
+        "C",
+        "B",
+        "A"
+      ],
+      "count": 2
+    }
+  ],
+  "maxScore": 5,
+  "budget": 100,
+  "seed": 1,
+  "total": 9
+};
+console.log(JSON.stringify(countKemenyYoung(election), null, 2));
+```
+
+</CodeSelect>
+
+Download the standalone [Python](https://github.com/bnm2f28k6s/electoral-systems/blob/codex/initial-single-winner-examples/examples/python/kemeny-young.py) or [TypeScript](https://github.com/bnm2f28k6s/electoral-systems/blob/codex/initial-single-winner-examples/examples/typescript/kemeny-young.ts) file. The complete engines use the same functions.
+
+## Simulate this method through HTTP
+
+Start the server from the repository with `python3 python/server.py`. Save the request above as `election.json`, then run:
+
+```sh
+curl --fail-with-body http://127.0.0.1:8000/simulate \
+  -H 'Content-Type: application/json' \
+  --data-binary @election.json
+```
+
+The server runs the Python algorithm and returns the JSON shown above. GitHub Pages itself does not execute API requests. See the [request and error reference](/api-design.md).
+
+## Criteria and assumptions
+
+These are properties of rules over whole classes of elections, not conclusions proved by the worked example. **Pass** and **fail** refer to the stated mathematical interpretation; **conditional** requires the stated assumptions; **unverified** means this guide has not established a result; **not-applicable** means the criterion is not defined for this input or outcome model. A fixed priority can change properties at exact ties. See the [definitions and interpretation guide](/criteria.md) before comparing rows.
+
+| Criterion | Assessment | Explanation and evidence |
+| --- | --- | --- |
+| [Ranked majority](/criteria.md#majority-ranked) | pass | A first-place majority is protected by this rule. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Rated majority](/criteria.md#majority-rated) | pass | A first-place majority is protected by this rule. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Majority loser](/criteria.md#majority-loser) | pass | A strict last-place majority prevents election under the standard rule. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Mutual majority](/criteria.md#mutual-majority) | pass | A majority agreeing on a preferred group keeps the winner within that group. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Condorcet winner](/criteria.md#condorcet-winner) | pass | An existing strict head-to-head winner is selected. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Condorcet loser](/criteria.md#condorcet-loser) | pass | The standard rule excludes a candidate losing every pairwise comparison. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Weak Pareto](/criteria.md#weak-pareto) | pass | On this complete strict-ranking domain, unanimous A above B protects A over B; the comparison concerns the mathematical rule before any external final tie resolution. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Strong Pareto](/criteria.md#strong-pareto) | pass | On this complete strict-ranking domain, unanimous A above B protects A over B; the comparison concerns the mathematical rule before any external final tie resolution. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Smith set](/criteria.md#smith) | pass | The standard rule chooses only from the smallest strictly majority-dominant set. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Smith independence](/criteria.md#smith-iia) | pass | Removing Smith outsiders does not alter the retained outcome in the standard rule. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Independence of Pareto-dominated alternatives](/criteria.md#ipda) | fail | A dominated candidate can change point gaps, victories or elimination decisions among others. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Independence of irrelevant alternatives](/criteria.md#iia) | fail | Removing a losing candidate can change which of the remaining candidates wins. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Local independence of irrelevant alternatives](/criteria.md#liia) | conditional | LIIA is a property of the standard social-ordering version, subject to consistent tie treatment. This API returns only winners, so it does not directly expose that ordering. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Independence of clones](/criteria.md#clone-independence) | fail | Splitting a candidate into adjacent clones can change the winning group or an outsider’s status. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Monotonicity](/criteria.md#monotonicity) | pass | Increasing support for a winning candidate cannot reduce that candidate’s winning status under the stated rule. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Consistency / reinforcement](/criteria.md#consistency) | fail | The winner in each of two electorates can lose after those electorates are combined. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Participation](/criteria.md#participation) | fail | There are profiles where joining honestly leads to a worse result than abstaining. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Reversal symmetry](/criteria.md#reversal-symmetry) | pass | Reversing every strict preference excludes a former unique winner under the standard interpretation. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Homogeneity](/criteria.md#homogeneity) | pass | Scaling every ballot count equally preserves the decisive comparisons or probabilities. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Polynomial counting time](/criteria.md#polynomial-time) | fail | This exact algorithm is exponential or factorial. The unrestricted winner problem is computationally hard; the small input cap is not a polynomial-time algorithm. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Resolvability](/criteria.md#resolvability) | conditional | Under a nondegenerate large-electorate model, exact equal decisive totals are typically rare. No universal tie-frequency claim is made without a probability model; fixed priority alone proves nothing. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Summability](/criteria.md#summability) | pass | O(m²) pairwise totals are additive; Borda totals for Black and score totals for STAR add only O(m). Kemeny’s difficult optimization still occurs after aggregation. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Later no harm](/criteria.md#later-no-harm) | fail | Supporting a lower preference can defeat a candidate placed above it. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [Later no help](/criteria.md#later-no-help) | fail | Adding a lower preference can improve an already higher candidate’s outcome. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+| [No favorite betrayal](/criteria.md#favorite-betrayal) | fail | Some profiles give an incentive to put a compromise strictly above the voter’s favorite. [Source](https://pref-voting.readthedocs.io/en/stable/other_methods.html). |
+
+## Cost and limits
+
+O(bm² + m! m²) for this teaching implementation.
+
+At most 8 candidates; larger fields return HTTP 413. The [API guide](/api-design.md) lists enforced bounds. Complexity describes the teaching implementation, not a guarantee about every algorithm for the same rule.
+
+## Sources
+
+- [Other methods — Preferential Voting Tools](https://pref-voting.readthedocs.io/en/stable/other_methods.html)
+- [Handbook of Computational Social Choice](https://cgi.cse.unsw.edu.au/~haziz/comsoc.pdf)
+
+[All methods](/methods.md) · [Ballot formats](/ballots.md) · [Criteria](/criteria.md)

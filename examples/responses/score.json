@@ -1,0 +1,16 @@
+{
+  "method": "score",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 20,
+        "B": 32,
+        "C": 19
+      }
+    }
+  ]
+}

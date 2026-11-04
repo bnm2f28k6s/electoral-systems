@@ -1,7 +1,7 @@
 name: Documentation and GitHub Pages
 on:
   push:
-    branches: [main]
+    branches: [main, codex/initial-single-winner-examples]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -16,6 +16,19 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.18.0'
+      - name: Verify counting engines, standalone examples, and HTTP contract
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py'
+          node tests/test_typescript.ts
+          python3 scripts/check_parity.py
+      - name: Verify generated examples and API contract stay current
+        run: |
+          python3 scripts/generate_docs.py
+          python3 scripts/generate_openapi.py
+          git diff --exit-code -- examples site
       - name: Install pinned Docapella
         run: ./scripts/install-docapella.sh
       - name: Build documentation

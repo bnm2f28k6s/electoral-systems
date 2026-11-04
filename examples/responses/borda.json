@@ -1,0 +1,16 @@
+{
+  "method": "borda",
+  "winners": [
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 8,
+        "B": 12,
+        "C": 7
+      }
+    }
+  ]
+}
