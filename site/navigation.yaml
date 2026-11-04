@@ -1,0 +1,11 @@
+- heading: Project
+  items:
+    - label: Introduction
+      href: /
+    - label: Algorithm chapter template
+      href: /algorithm-template.md
+    - label: API design proposal
+      href: /api-design.md
+- heading: Draft API reference
+  items:
+    - open_api_spec: openapi.json

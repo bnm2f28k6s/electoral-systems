@@ -1,0 +1,38 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Electoral systems API draft",
+    "version": "0.0.1",
+    "description": "Exploratory contract only. No API server is implemented or deployed. Example data is illustrative, not executed output."
+  },
+  "servers": [{"url": "https://example.invalid/v1", "description": "Non-operational placeholder. Do not send requests."}],
+  "tags": [{"name": "Systems", "description": "Proposed catalogue of voting-rule identifiers. No implemented methods are claimed."}],
+  "paths": {
+    "/systems": {
+      "get": {
+        "tags": ["Systems"],
+        "operationId": "listSystems",
+        "summary": "List documented voting systems (proposed)",
+        "description": "Contract sketch only; no running endpoint. The empty response example makes no claim about implemented systems.",
+        "responses": {
+          "200": {
+            "description": "Proposed list of documentation identifiers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "name"],
+                    "properties": {"id": {"type": "string"}, "name": {"type": "string"}}
+                  }
+                },
+                "example": []
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

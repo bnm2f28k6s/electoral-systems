@@ -1,0 +1,13 @@
+title: Electoral systems as algorithms
+domain: https://bnm2f28k6s.github.io
+theme:
+  colors:
+    accent: "#2563EB"
+    grayscale: slate
+open_api:
+  - spec_file: openapi.json
+    uri_prefix: /api/reference
+header:
+  links:
+    - label: GitHub
+      external: https://github.com/bnm2f28k6s/electoral-systems
