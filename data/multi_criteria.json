@@ -1,0 +1,198 @@
+[
+  {
+    "id": "proportionality-solid-coalitions",
+    "name": "Proportionality for solid coalitions",
+    "category": "Representation",
+    "definition": "For every positive integer ℓ, a group of at least ℓN/k voters who all rank every member of a set T above every outsider must receive at least min(ℓ, |T|) members of T in a size-k committee. This is Hare-PSC; quota-based versions replace N/k by a stated q.",
+    "source": "https://cgi.cse.unsw.edu.au/~haziz/prsolution.pdf"
+  },
+  {
+    "id": "solid-coalition",
+    "name": "Solid coalition",
+    "category": "Representation",
+    "definition": "If at least N/k voters put the same candidate uniquely first, every winning size-k committee must contain that candidate. This single-candidate requirement is weaker than full proportionality for solid coalitions.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "candidate-monotonicity",
+    "name": "Candidate monotonicity",
+    "category": "Support changes",
+    "definition": "Raising an elected candidate in rankings, or adding that candidate to an existing approval ballot, must not remove that candidate from all winning committees. Other candidates retain their relative positions. This is a single-candidate property, not group support monotonicity.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "support-monotonicity",
+    "name": "Group support monotonicity",
+    "category": "Support changes",
+    "definition": "For approval ballots, adding support for a set X of already elected candidates should keep X together in a winning committee. This is stronger than candidate monotonicity; adding voters and changing existing ballots are distinct versions. Here the existing-ballot version is used.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "weak-pareto",
+    "name": "Weak Pareto",
+    "category": "Dominance",
+    "definition": "The outcome correspondence must not exclude an improving outcome. For approval ballots, if W wins and W′ gives every voter at least as many approved representatives and one voter more, W′ must also win. For the ordinal candidate-replacement test, if everyone ranks A above B and some winner contains B, at least one winning committee must contain A. The applicable interpretation is stated per method.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "strong-pareto",
+    "name": "Strong Pareto",
+    "category": "Dominance",
+    "definition": "For approval ballots no selected committee may be dominated by another size-k committee in approved-representative counts. For the ordinal replacement test, if everyone ranks A above B, every winning committee that contains B must also contain A. These are different tests, not interchangeable definitions of committee utility.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "consensus-committee",
+    "name": "Consensus committee",
+    "category": "Representation",
+    "definition": "If every voter ranks a member of a size-k set W first and those first-choice totals differ by at most one, W must be the unique winning committee. Small-electorate and quota conventions can matter.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "fishburn-condorcet",
+    "name": "Fishburn Condorcet committee",
+    "category": "Majority comparisons",
+    "definition": "If a size-k committee defeats every other size-k committee by a strict voter majority, it should be selected. Comparing two committees requires an explicit extension of individual preferences: for approval ballots the number of approved members is one such extension. Rankings of candidates alone do not uniquely specify committee rankings.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "gehrlein-condorcet",
+    "name": "Gehrlein Condorcet committee",
+    "category": "Majority comparisons",
+    "definition": "If a size-k set exists whose every member beats every outsider by strict pairwise majority, elect that set. This is an inside-versus-outside test on individual candidates, not a head-to-head vote between whole committees.",
+    "source": "https://flore.unifi.it/handle/2158/1175914"
+  },
+  {
+    "id": "condorcet-winning-set",
+    "name": "Condorcet winning set",
+    "category": "Majority comparisons",
+    "definition": "For every candidate x outside the committee, more than half of voters must rank at least one committee member above x. Different voters may rely on different committee members. The requirement is applied when a qualifying size-k set exists.",
+    "source": "https://www.lamsade.dauphine.fr/~lang/papers/elkind-lang-saffidine-11.pdf"
+  },
+  {
+    "id": "smith",
+    "name": "Smith requirement for committees",
+    "category": "Majority comparisons",
+    "definition": "A multiwinner Smith claim needs a stated majority relation. For Schulze-STV it concerns the majority-dominant set of committees in its own comparison graph; it does not mean every elected candidate must belong to the single-winner Smith set, which may contain fewer than k candidates.",
+    "source": "https://aso.icann.org/wp-content/uploads/2019/02/schulze2.pdf"
+  },
+  {
+    "id": "committee-monotonicity",
+    "name": "Committee monotonicity",
+    "category": "Committee size",
+    "definition": "Increasing the requested size from k to k+1 should allow each winning size-k committee to extend to a winning size-(k+1) committee, and each winning larger committee to contain a winning smaller one. For a deterministic fixed-priority implementation, the selected committees should be nested; other independent options are held fixed.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "iia",
+    "name": "Independence of irrelevant alternatives",
+    "category": "Candidate changes",
+    "definition": "Removing an unelected candidate while retaining enough candidates and keeping preferences over all others unchanged must leave the elected committee unchanged. For cardinal ballots, unchanged submitted grades or approvals is an essential assumption. This chosen-set removal property is weaker than some social-ranking versions of IIA.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "consistency",
+    "name": "Consistency",
+    "category": "Electorate changes",
+    "definition": "If two disjoint electorates have common winning committees for the same candidate set and seat count, the winners after combining them should be exactly those common committees. A fixed-priority selector is an additional layer; seeded samples are not the outcome correspondence.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "participation",
+    "name": "Participation",
+    "category": "Strategy",
+    "definition": "Submitting an honest ballot should not make the outcome worse for that voter than abstaining. To compare committees or lotteries, specify how the voter evaluates sets or probabilities. Candidate rankings alone leave this preference extension unspecified.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "clone-independence",
+    "name": "Clone independence",
+    "category": "Candidate changes",
+    "definition": "Replacing a candidate by similar copies should not create a benefit or harm for an unrelated faction under a stated multiwinner clone definition. With several seats, more than one clone can be elected, so single-winner clone definitions cannot simply be reused.",
+    "source": "https://aso.icann.org/wp-content/uploads/2019/02/schulze2.pdf"
+  },
+  {
+    "id": "homogeneity",
+    "name": "Homogeneity",
+    "category": "Electorate changes",
+    "definition": "Replicating every ballot the same positive integer number of times should preserve the winning committees, or the lottery distribution. The tie flag, intermediate tallies and a particular pseudorandom sample need not be identical.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "favorite-betrayal",
+    "name": "No favorite betrayal",
+    "category": "Strategy",
+    "definition": "A voter should never need to put a less-preferred candidate strictly above a sincere favorite to obtain a better outcome. Approval ties at the top are allowed; the voter’s preference over complete committees must be specified before assessing this guarantee.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "semi-honest",
+    "name": "Semi-honest strategy",
+    "category": "Strategy",
+    "definition": "For fixed other ballots, a voter should have a best-response ballot that does not reverse any strict preference between candidates; equal ratings or truncation may be allowed in the general rule. This is an existence-of-best-response claim, not strategyproofness. Committee utility and permitted ballots must be stated.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "universally-liked",
+    "name": "Universally liked candidates",
+    "category": "Representation",
+    "definition": "When no more than k candidates are universally top-supported, those candidates should be included. Adding a universally supported candidate together with an extra seat should not change how the other seats are allocated. On rankings, uniquely first is the clear special case; on approvals it means approved by everybody. Exact ties and multiple universal candidates must be stated.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "weak-unanimity",
+    "name": "Weak unanimity",
+    "category": "Unanimity",
+    "definition": "If all voters rank the same size-k set W above every outsider, in any internal order, W must be at least one of the winning committees. It need not be the only winning committee.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "strong-unanimity",
+    "name": "Strong unanimity",
+    "category": "Unanimity",
+    "definition": "If all voters rank the same size-k set W above every outsider, in any internal order, W must be the unique winning committee. This strengthens weak unanimity.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "fixed-majority",
+    "name": "Fixed majority",
+    "category": "Unanimity",
+    "definition": "If the same strict majority of voters ranks every member of a size-k set W above every outsider, elect W uniquely. This is a majoritarian demand and can conflict with representing substantial minorities.",
+    "source": "https://arxiv.org/abs/1506.02891"
+  },
+  {
+    "id": "polynomial-time",
+    "name": "Polynomial counting time",
+    "category": "Counting",
+    "definition": "Can this implementation count an election using a number of arithmetic operations polynomial in candidates, stored ballot groups and seats? Exact rational bit complexity is additional; a fixed input cap does not turn an exhaustive algorithm into a general polynomial algorithm.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "summability",
+    "name": "Summability",
+    "category": "Counting",
+    "definition": "Can summaries counted independently at precincts be added before choosing the committee? Specify summary size: candidate totals O(m), pairwise counts O(m²), full approval types O(2^m), and complete ranking types O(m!) are materially different.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "jr",
+    "name": "Justified representation (JR)",
+    "category": "Approval representation",
+    "definition": "Any group of at least N/k voters sharing an approved candidate must include at least one voter with an approved elected representative. This definition uses approval sets, not inferred approvals from rankings or scores.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "pjr",
+    "name": "Proportional justified representation (PJR)",
+    "category": "Approval representation",
+    "definition": "If a group has at least ℓN/k voters and at least ℓ candidates approved by every member, the committee must contain at least ℓ candidates approved by somebody in the group. PJR implies JR.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  },
+  {
+    "id": "ejr",
+    "name": "Extended justified representation (EJR)",
+    "category": "Approval representation",
+    "definition": "For each such ℓ-cohesive group, at least one group member must approve at least ℓ elected candidates. This strengthens PJR, which can satisfy the group collectively without giving any one voter ℓ representatives.",
+    "source": "https://arxiv.org/abs/2007.01795"
+  }
+]
