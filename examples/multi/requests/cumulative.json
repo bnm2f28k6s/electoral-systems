@@ -1,0 +1,45 @@
+{
+  "method": "cumulative",
+  "seats": 2,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "ballots": [
+    {
+      "votes": {
+        "A": 60,
+        "B": 40,
+        "C": 0,
+        "D": 0
+      },
+      "count": 6
+    },
+    {
+      "votes": {
+        "A": 0,
+        "B": 0,
+        "C": 60,
+        "D": 40
+      },
+      "count": 3
+    },
+    {
+      "votes": {
+        "A": 0,
+        "B": 0,
+        "C": 0,
+        "D": 100
+      },
+      "count": 1
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "limit": 1,
+    "seed": 1
+  }
+}

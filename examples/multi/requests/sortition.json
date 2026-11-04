@@ -1,0 +1,17 @@
+{
+  "method": "sortition",
+  "seats": 2,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "ballots": [],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "limit": 1,
+    "seed": 1
+  }
+}

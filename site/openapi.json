@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Electoral systems simulation API",
-    "version": "1.0.0",
-    "description": "Local teaching server executing the same Python counting algorithms shown in the chapters. Start it with `python3 python/server.py`. GitHub Pages hosts documentation only. Results include intermediate counts; a tie remains a set of co-winners. See the API guide for exact variants, tie priorities, and computational limits."
+    "version": "1.1.0",
+    "description": "Local teaching server executing the same Python counting algorithms shown in the chapters. Start it with `python3 python/server.py`. GitHub Pages hosts documentation only. Single-winner results include intermediate counts; a final tie remains a set of co-winners. See the API guides for exact variants, tie priorities, and computational limits. Committee methods use /multi/systems and /multi/simulate with an explicit seats field. Their winners form one selected committee, and their tie flag records selection ties. The original single-winner endpoints retain their existing response meaning."
   },
   "servers": [
     {
@@ -19,6 +19,10 @@
     {
       "name": "Simulations",
       "description": "Execute a synthetic single-winner election."
+    },
+    {
+      "name": "Committees",
+      "description": "Discover and execute multi-winner rules. See the committee API guide for variants, exact-search limits, and tie semantics."
     }
   ],
   "paths": {
@@ -2038,6 +2042,2062 @@
           }
         }
       }
+    },
+    "/multi/systems": {
+      "get": {
+        "tags": [
+          "Committees"
+        ],
+        "operationId": "listCommitteeSystems",
+        "summary": "List 19 implemented multi-winner methods",
+        "responses": {
+          "200": {
+            "description": "Committee counting method identifiers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "methods": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "approval",
+                          "proportional-approval",
+                          "sequential-proportional-approval",
+                          "reweighted-range",
+                          "stv",
+                          "cpo-stv",
+                          "schulze-stv",
+                          "phragmen",
+                          "k-borda",
+                          "bloc",
+                          "quota-borda",
+                          "expanding-approvals",
+                          "minimax",
+                          "minimax-external-opposition",
+                          "single-non-transferable",
+                          "limited-vote",
+                          "cumulative",
+                          "sortition",
+                          "multiple-random-ballots"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "methods"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "methods": [
+                    "approval",
+                    "proportional-approval",
+                    "sequential-proportional-approval",
+                    "reweighted-range",
+                    "stv",
+                    "cpo-stv",
+                    "schulze-stv",
+                    "phragmen",
+                    "k-borda",
+                    "bloc",
+                    "quota-borda",
+                    "expanding-approvals",
+                    "minimax",
+                    "minimax-external-opposition",
+                    "single-non-transferable",
+                    "limited-vote",
+                    "cumulative",
+                    "sortition",
+                    "multiple-random-ballots"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/multi/simulate": {
+      "post": {
+        "tags": [
+          "Committees"
+        ],
+        "operationId": "simulateCommittee",
+        "summary": "Elect a committee using the named rule",
+        "description": "Runs the Python multi-winner engine. Candidate order supplies deterministic priority for selection ties; final winners are returned in input order. Random draws advance the seeded generator once per seat. Count is the multiplicity of identical voters. Integer Droop STV and CPO-STV, exact-quota QBS/EAR, sequential Phragmen, and both Simpson extensions are specified in their chapters.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultiElection"
+              },
+              "examples": {
+                "approval": {
+                  "summary": "Multi-winner approval voting",
+                  "value": {
+                    "method": "approval",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A",
+                          "B"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "approvals": [
+                          "C",
+                          "D"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "D"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "proportional-approval": {
+                  "summary": "Proportional approval voting (PAV)",
+                  "value": {
+                    "method": "proportional-approval",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A",
+                          "B"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "approvals": [
+                          "C",
+                          "D"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "D"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "sequential-proportional-approval": {
+                  "summary": "Sequential proportional approval voting",
+                  "value": {
+                    "method": "sequential-proportional-approval",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A",
+                          "B"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "approvals": [
+                          "C",
+                          "D"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "D"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "reweighted-range": {
+                  "summary": "Reweighted range voting",
+                  "value": {
+                    "method": "reweighted-range",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "scores": {
+                          "A": 5,
+                          "B": 4,
+                          "C": 0,
+                          "D": 0
+                        },
+                        "count": 6
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 0,
+                          "C": 5,
+                          "D": 4
+                        },
+                        "count": 3
+                      },
+                      {
+                        "scores": {
+                          "A": 0,
+                          "B": 0,
+                          "C": 4,
+                          "D": 5
+                        },
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "stv": {
+                  "summary": "Single transferable vote (STV)",
+                  "value": {
+                    "method": "stv",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "cpo-stv": {
+                  "summary": "CPO-STV",
+                  "value": {
+                    "method": "cpo-stv",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "schulze-stv": {
+                  "summary": "Schulze STV",
+                  "value": {
+                    "method": "schulze-stv",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "phragmen": {
+                  "summary": "Phragmén’s sequential rule",
+                  "value": {
+                    "method": "phragmen",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A",
+                          "B"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "approvals": [
+                          "C",
+                          "D"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "D"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "k-borda": {
+                  "summary": "k-Borda",
+                  "value": {
+                    "method": "k-borda",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "bloc": {
+                  "summary": "Bloc voting",
+                  "value": {
+                    "method": "bloc",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "quota-borda": {
+                  "summary": "Quota Borda system (QBS)",
+                  "value": {
+                    "method": "quota-borda",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "expanding-approvals": {
+                  "summary": "Expanding approvals rule (EAR)",
+                  "value": {
+                    "method": "expanding-approvals",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "minimax": {
+                  "summary": "Multi-winner minimax (Simpson)",
+                  "value": {
+                    "method": "minimax",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "minimax-external-opposition": {
+                  "summary": "Minimax minimal size of external opposition",
+                  "value": {
+                    "method": "minimax-external-opposition",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "single-non-transferable": {
+                  "summary": "Single non-transferable vote (SNTV)",
+                  "value": {
+                    "method": "single-non-transferable",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "limited-vote": {
+                  "summary": "Limited voting",
+                  "value": {
+                    "method": "limited-vote",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "approvals": [
+                          "A"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "approvals": [
+                          "C"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "approvals": [
+                          "D"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "cumulative": {
+                  "summary": "Cumulative voting",
+                  "value": {
+                    "method": "cumulative",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "votes": {
+                          "A": 60,
+                          "B": 40,
+                          "C": 0,
+                          "D": 0
+                        },
+                        "count": 6
+                      },
+                      {
+                        "votes": {
+                          "A": 0,
+                          "B": 0,
+                          "C": 60,
+                          "D": 40
+                        },
+                        "count": 3
+                      },
+                      {
+                        "votes": {
+                          "A": 0,
+                          "B": 0,
+                          "C": 0,
+                          "D": 100
+                        },
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "sortition": {
+                  "summary": "Multi-winner sortition",
+                  "value": {
+                    "method": "sortition",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                },
+                "multiple-random-ballots": {
+                  "summary": "Multiple random ballots",
+                  "value": {
+                    "method": "multiple-random-ballots",
+                    "seats": 2,
+                    "candidates": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ],
+                    "ballots": [
+                      {
+                        "ranking": [
+                          "A",
+                          "B",
+                          "C",
+                          "D"
+                        ],
+                        "count": 6
+                      },
+                      {
+                        "ranking": [
+                          "C",
+                          "D",
+                          "A",
+                          "B"
+                        ],
+                        "count": 3
+                      },
+                      {
+                        "ranking": [
+                          "D",
+                          "C",
+                          "B",
+                          "A"
+                        ],
+                        "count": 1
+                      }
+                    ],
+                    "options": {
+                      "maxScore": 5,
+                      "budget": 100,
+                      "limit": 1,
+                      "seed": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid JSON, method, ballot, option, or profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request body timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body or computation exceeds a published teaching limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "One selected committee with exactly seats distinct members and an executed count trace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiResult"
+                },
+                "examples": {
+                  "approval": {
+                    "value": {
+                      "method": "approval",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 6,
+                            "B": 6,
+                            "C": 3,
+                            "D": 4
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "proportional-approval": {
+                    "value": {
+                      "method": "proportional-approval",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "D"
+                      ],
+                      "tie": true,
+                      "trace": [
+                        {
+                          "committees": [
+                            {
+                              "committee": [
+                                "A",
+                                "B"
+                              ],
+                              "score": 9.0
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "C"
+                              ],
+                              "score": 9.0
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "D"
+                              ],
+                              "score": 10.0
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "C"
+                              ],
+                              "score": 9.0
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "D"
+                              ],
+                              "score": 10.0
+                            },
+                            {
+                              "committee": [
+                                "C",
+                                "D"
+                              ],
+                              "score": 5.5
+                            }
+                          ],
+                          "bestScore": 10.0,
+                          "tiedCommittees": [
+                            [
+                              "A",
+                              "D"
+                            ],
+                            [
+                              "B",
+                              "D"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "sequential-proportional-approval": {
+                    "value": {
+                      "method": "sequential-proportional-approval",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "D"
+                      ],
+                      "tie": true,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "tally": {
+                            "A": 6.0,
+                            "B": 6.0,
+                            "C": 3.0,
+                            "D": 4.0
+                          },
+                          "selected": "A",
+                          "tied": [
+                            "A",
+                            "B"
+                          ]
+                        },
+                        {
+                          "round": 2,
+                          "tally": {
+                            "B": 3.0,
+                            "C": 3.0,
+                            "D": 4.0
+                          },
+                          "selected": "D",
+                          "tied": [
+                            "D"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "reweighted-range": {
+                    "value": {
+                      "method": "reweighted-range",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "weights": [
+                            1.0,
+                            1.0,
+                            1.0
+                          ],
+                          "tally": {
+                            "A": 30.0,
+                            "B": 24.0,
+                            "C": 19.0,
+                            "D": 17.0
+                          },
+                          "selected": "A",
+                          "tied": [
+                            "A"
+                          ]
+                        },
+                        {
+                          "round": 2,
+                          "weights": [
+                            0.5,
+                            1.0,
+                            1.0
+                          ],
+                          "tally": {
+                            "B": 12.0,
+                            "C": 19.0,
+                            "D": 17.0
+                          },
+                          "selected": "C",
+                          "tied": [
+                            "C"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "stv": {
+                    "value": {
+                      "method": "stv",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "quota": 4
+                        },
+                        {
+                          "tally": {
+                            "A": 6.0,
+                            "B": 0.0,
+                            "C": 3.0,
+                            "D": 1.0
+                          },
+                          "elected": "A",
+                          "tied": [
+                            "A"
+                          ],
+                          "transferFactor": 0.3333333333333333
+                        },
+                        {
+                          "tally": {
+                            "B": 2.0,
+                            "C": 3.0,
+                            "D": 1.0
+                          },
+                          "eliminated": "D",
+                          "tied": [
+                            "D"
+                          ]
+                        },
+                        {
+                          "tally": {
+                            "B": 2.0,
+                            "C": 4.0
+                          },
+                          "elected": "C",
+                          "tied": [
+                            "C"
+                          ],
+                          "transferFactor": 0.0
+                        }
+                      ]
+                    }
+                  },
+                  "cpo-stv": {
+                    "value": {
+                      "method": "cpo-stv",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "quota": 4,
+                          "support": [
+                            [
+                              0.0,
+                              6.0,
+                              6.0,
+                              6.0,
+                              6.0,
+                              6.0
+                            ],
+                            [
+                              8.0,
+                              0.0,
+                              9.0,
+                              10.0,
+                              9.0,
+                              9.0
+                            ],
+                            [
+                              8.0,
+                              5.0,
+                              0.0,
+                              7.0,
+                              10.0,
+                              7.0
+                            ],
+                            [
+                              4.0,
+                              4.0,
+                              3.0,
+                              0.0,
+                              9.0,
+                              9.0
+                            ],
+                            [
+                              4.0,
+                              1.0,
+                              4.0,
+                              5.0,
+                              0.0,
+                              7.0
+                            ],
+                            [
+                              4.0,
+                              4.0,
+                              4.0,
+                              4.0,
+                              4.0,
+                              0.0
+                            ]
+                          ],
+                          "comparisonTies": []
+                        },
+                        {
+                          "committees": [
+                            {
+                              "committee": [
+                                "A",
+                                "B"
+                              ],
+                              "score": 2.0
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "C"
+                              ],
+                              "score": 0.0
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "D"
+                              ],
+                              "score": 4.0
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "C"
+                              ],
+                              "score": 6.0
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "D"
+                              ],
+                              "score": 8.0
+                            },
+                            {
+                              "committee": [
+                                "C",
+                                "D"
+                              ],
+                              "score": 5.0
+                            }
+                          ],
+                          "bestScore": 0.0,
+                          "tiedCommittees": [
+                            [
+                              "A",
+                              "C"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "schulze-stv": {
+                    "value": {
+                      "method": "schulze-stv",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "committees": [
+                            [
+                              "A",
+                              "B"
+                            ],
+                            [
+                              "A",
+                              "C"
+                            ],
+                            [
+                              "A",
+                              "D"
+                            ],
+                            [
+                              "B",
+                              "C"
+                            ],
+                            [
+                              "B",
+                              "D"
+                            ],
+                            [
+                              "C",
+                              "D"
+                            ]
+                          ],
+                          "links": [
+                            [
+                              0.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              0.0
+                            ],
+                            [
+                              4.0,
+                              0.0,
+                              4.5,
+                              4.0,
+                              0.0,
+                              4.5
+                            ],
+                            [
+                              4.0,
+                              1.0,
+                              0.0,
+                              0.0,
+                              4.0,
+                              1.0
+                            ],
+                            [
+                              1.0,
+                              1.0,
+                              0.0,
+                              0.0,
+                              4.5,
+                              4.5
+                            ],
+                            [
+                              1.0,
+                              0.0,
+                              1.0,
+                              1.0,
+                              0.0,
+                              1.0
+                            ],
+                            [
+                              0.0,
+                              2.0,
+                              2.0,
+                              2.0,
+                              2.0,
+                              0.0
+                            ]
+                          ],
+                          "strongestPaths": [
+                            [
+                              0.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0,
+                              3.0
+                            ],
+                            [
+                              4.0,
+                              0.0,
+                              4.5,
+                              4.0,
+                              4.0,
+                              4.5
+                            ],
+                            [
+                              4.0,
+                              3.0,
+                              0.0,
+                              3.0,
+                              4.0,
+                              3.0
+                            ],
+                            [
+                              2.0,
+                              2.0,
+                              2.0,
+                              0.0,
+                              4.5,
+                              4.5
+                            ],
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0,
+                              1.0
+                            ],
+                            [
+                              2.0,
+                              2.0,
+                              2.0,
+                              2.0,
+                              2.0,
+                              0.0
+                            ]
+                          ],
+                          "stageTwoCommittees": [
+                            [
+                              "A",
+                              "C"
+                            ]
+                          ],
+                          "singleWinnerPaths": {
+                            "A": {
+                              "A": 0,
+                              "B": 9,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "B": {
+                              "A": 4,
+                              "B": 0,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "C": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 0,
+                              "D": 9
+                            },
+                            "D": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 4,
+                              "D": 0
+                            }
+                          },
+                          "tiedCommittees": [
+                            [
+                              "A",
+                              "C"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "phragmen": {
+                    "value": {
+                      "method": "phragmen",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "D"
+                      ],
+                      "tie": true,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "loadLevels": {
+                            "A": 0.16666666666666666,
+                            "B": 0.16666666666666666,
+                            "C": 0.3333333333333333,
+                            "D": 0.25
+                          },
+                          "selected": "A",
+                          "tied": [
+                            "A",
+                            "B"
+                          ],
+                          "loads": [
+                            0.16666666666666666,
+                            0.0,
+                            0.0
+                          ]
+                        },
+                        {
+                          "round": 2,
+                          "loadLevels": {
+                            "B": 0.3333333333333333,
+                            "C": 0.3333333333333333,
+                            "D": 0.25
+                          },
+                          "selected": "D",
+                          "tied": [
+                            "D"
+                          ],
+                          "loads": [
+                            0.16666666666666666,
+                            0.25,
+                            0.25
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "k-borda": {
+                    "value": {
+                      "method": "k-borda",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 21,
+                            "B": 13,
+                            "C": 17,
+                            "D": 9
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "bloc": {
+                    "value": {
+                      "method": "bloc",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 6,
+                            "B": 6,
+                            "C": 4,
+                            "D": 4
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "quota-borda": {
+                    "value": {
+                      "method": "quota-borda",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "quota": 3.4444444444444446,
+                          "borda": {
+                            "A": 21,
+                            "B": 13,
+                            "C": 17,
+                            "D": 9
+                          }
+                        },
+                        {
+                          "depth": 1,
+                          "demands": [
+                            {
+                              "candidates": [
+                                "A"
+                              ],
+                              "seats": 1
+                            }
+                          ],
+                          "selected": "A",
+                          "tied": [
+                            "A"
+                          ]
+                        },
+                        {
+                          "depth": 2,
+                          "demands": [
+                            {
+                              "candidates": [
+                                "C",
+                                "D"
+                              ],
+                              "seats": 1
+                            }
+                          ],
+                          "selected": "C",
+                          "tied": [
+                            "C"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "expanding-approvals": {
+                    "value": {
+                      "method": "expanding-approvals",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "quota": 3.4444444444444446,
+                          "priority": [
+                            "A",
+                            "C",
+                            "D",
+                            "B"
+                          ],
+                          "rankVectors": {
+                            "A": [
+                              6,
+                              0,
+                              3,
+                              1
+                            ],
+                            "B": [
+                              0,
+                              6,
+                              1,
+                              3
+                            ],
+                            "C": [
+                              3,
+                              1,
+                              6,
+                              0
+                            ],
+                            "D": [
+                              1,
+                              3,
+                              0,
+                              6
+                            ]
+                          }
+                        },
+                        {
+                          "depth": 1,
+                          "tally": {
+                            "A": 6.0,
+                            "B": 0.0,
+                            "C": 3.0,
+                            "D": 1.0
+                          },
+                          "eligible": [
+                            "A"
+                          ],
+                          "selected": "A",
+                          "tied": [
+                            "A"
+                          ],
+                          "remainingWeights": [
+                            2.5555555555555554,
+                            3.0,
+                            1.0
+                          ]
+                        },
+                        {
+                          "depth": 1,
+                          "tally": {
+                            "B": 0.0,
+                            "C": 3.0,
+                            "D": 1.0
+                          },
+                          "eligible": []
+                        },
+                        {
+                          "depth": 2,
+                          "tally": {
+                            "B": 2.5555555555555554,
+                            "C": 4.0,
+                            "D": 4.0
+                          },
+                          "eligible": [
+                            "C",
+                            "D"
+                          ],
+                          "selected": "C",
+                          "tied": [
+                            "C"
+                          ],
+                          "remainingWeights": [
+                            2.5555555555555554,
+                            0.4166666666666667,
+                            0.1388888888888889
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "minimax": {
+                    "value": {
+                      "method": "minimax",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 9,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "B": {
+                              "A": 1,
+                              "B": 0,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "C": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 0,
+                              "D": 9
+                            },
+                            "D": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 1,
+                              "D": 0
+                            }
+                          }
+                        },
+                        {
+                          "simpsonScores": {
+                            "A": 6,
+                            "B": 1,
+                            "C": 4,
+                            "D": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "minimax-external-opposition": {
+                    "value": {
+                      "method": "minimax-external-opposition",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "pairwise": {
+                            "A": {
+                              "A": 0,
+                              "B": 9,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "B": {
+                              "A": 1,
+                              "B": 0,
+                              "C": 6,
+                              "D": 6
+                            },
+                            "C": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 0,
+                              "D": 9
+                            },
+                            "D": {
+                              "A": 4,
+                              "B": 4,
+                              "C": 1,
+                              "D": 0
+                            }
+                          }
+                        },
+                        {
+                          "committees": [
+                            {
+                              "committee": [
+                                "A",
+                                "B"
+                              ],
+                              "score": 6
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "C"
+                              ],
+                              "score": 4
+                            },
+                            {
+                              "committee": [
+                                "A",
+                                "D"
+                              ],
+                              "score": 1
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "C"
+                              ],
+                              "score": 1
+                            },
+                            {
+                              "committee": [
+                                "B",
+                                "D"
+                              ],
+                              "score": 1
+                            },
+                            {
+                              "committee": [
+                                "C",
+                                "D"
+                              ],
+                              "score": 4
+                            }
+                          ],
+                          "bestScore": 6,
+                          "tiedCommittees": [
+                            [
+                              "A",
+                              "B"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "single-non-transferable": {
+                    "value": {
+                      "method": "single-non-transferable",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 6,
+                            "B": 0,
+                            "C": 3,
+                            "D": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "limited-vote": {
+                    "value": {
+                      "method": "limited-vote",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 6,
+                            "B": 0,
+                            "C": 3,
+                            "D": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "cumulative": {
+                    "value": {
+                      "method": "cumulative",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "tally": {
+                            "A": 360,
+                            "B": 240,
+                            "C": 180,
+                            "D": 220
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "sortition": {
+                    "value": {
+                      "method": "sortition",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "C"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "probabilities": {
+                            "A": 0.25,
+                            "B": 0.25,
+                            "C": 0.25,
+                            "D": 0.25
+                          },
+                          "selected": "A",
+                          "state": 1015568748
+                        },
+                        {
+                          "round": 2,
+                          "probabilities": {
+                            "B": 0.3333333333333333,
+                            "C": 0.3333333333333333,
+                            "D": 0.3333333333333333
+                          },
+                          "selected": "C",
+                          "state": 1586005467
+                        }
+                      ]
+                    }
+                  },
+                  "multiple-random-ballots": {
+                    "value": {
+                      "method": "multiple-random-ballots",
+                      "seats": 2,
+                      "winners": [
+                        "A",
+                        "B"
+                      ],
+                      "tie": false,
+                      "trace": [
+                        {
+                          "round": 1,
+                          "tally": {
+                            "A": 6,
+                            "B": 0,
+                            "C": 3,
+                            "D": 1
+                          },
+                          "probabilities": {
+                            "A": 0.6,
+                            "B": 0.0,
+                            "C": 0.3,
+                            "D": 0.1
+                          },
+                          "selected": "A",
+                          "state": 1015568748
+                        },
+                        {
+                          "round": 2,
+                          "tally": {
+                            "B": 6,
+                            "C": 3,
+                            "D": 1
+                          },
+                          "probabilities": {
+                            "B": 0.6,
+                            "C": 0.3,
+                            "D": 0.1
+                          },
+                          "selected": "B",
+                          "state": 1586005467
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2552,6 +4612,440 @@
           }
         ],
         "description": "Use the ballot format accepted by the chosen method. Rankings must list every candidate exactly once. Score and credit maps must include every candidate. Additional numeric and computation limits are documented in the API guide and enforced by the server."
+      },
+      "MultiOptions": {
+        "type": "object",
+        "properties": {
+          "maxScore": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 5
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 100
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Limited-vote marks: default max(1, seats−1). Must be below seats, except the one-seat limit is one."
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295,
+            "default": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CumulativeBallot": {
+        "type": "object",
+        "properties": {
+          "votes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "description": "Explicit nonnegative allocation to every candidate; sum must not exceed budget."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000,
+            "default": 1
+          }
+        },
+        "required": [
+          "votes"
+        ],
+        "additionalProperties": false
+      },
+      "MultiRankedElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "stv",
+              "cpo-stv",
+              "schulze-stv",
+              "k-borda",
+              "bloc",
+              "quota-borda",
+              "expanding-approvals",
+              "minimax",
+              "minimax-external-opposition",
+              "multiple-random-ballots"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RankedBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiApprovalElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "approval",
+              "proportional-approval",
+              "sequential-proportional-approval",
+              "phragmen",
+              "limited-vote"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiScoredElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "reweighted-range"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScoreBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiCumulativeElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "cumulative"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CumulativeBallot"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiMarkedElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "single-non-transferable"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RankedBallot"
+                },
+                {
+                  "$ref": "#/components/schemas/MarkBallot"
+                }
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiSortitionElection": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "sortition"
+            ]
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "description": "Number of distinct candidates to elect; cannot exceed candidate count."
+          },
+          "ballots": {
+            "type": "array",
+            "items": {},
+            "maxItems": 0
+          },
+          "options": {
+            "$ref": "#/components/schemas/MultiOptions"
+          }
+        },
+        "required": [
+          "method",
+          "candidates",
+          "seats",
+          "ballots"
+        ],
+        "additionalProperties": false
+      },
+      "MultiElection": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/MultiRankedElection"
+          },
+          {
+            "$ref": "#/components/schemas/MultiApprovalElection"
+          },
+          {
+            "$ref": "#/components/schemas/MultiScoredElection"
+          },
+          {
+            "$ref": "#/components/schemas/MultiCumulativeElection"
+          },
+          {
+            "$ref": "#/components/schemas/MultiMarkedElection"
+          },
+          {
+            "$ref": "#/components/schemas/MultiSortitionElection"
+          }
+        ],
+        "description": "Committee count with a required seat count. Ballot formats, sum budgets, dynamic limits, and exact-search caps are checked by the server. Rankings must be complete and strict. The single-winner request model is separate."
+      },
+      "MultiResult": {
+        "type": "object",
+        "required": [
+          "method",
+          "seats",
+          "winners",
+          "tie",
+          "trace"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "approval",
+              "proportional-approval",
+              "sequential-proportional-approval",
+              "reweighted-range",
+              "stv",
+              "cpo-stv",
+              "schulze-stv",
+              "phragmen",
+              "k-borda",
+              "bloc",
+              "quota-borda",
+              "expanding-approvals",
+              "minimax",
+              "minimax-external-opposition",
+              "single-non-transferable",
+              "limited-vote",
+              "cumulative",
+              "sortition",
+              "multiple-random-ballots"
+            ]
+          },
+          "seats": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "winners": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true,
+            "description": "Exactly seats selected members, listed in original candidate order."
+          },
+          "tie": {
+            "type": "boolean",
+            "description": "True when selection used a tie resolution. Multiple elected members do not themselves mean a tied result."
+          },
+          "trace": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Method-specific tally, transfer, load, coalition, committee-comparison, or seeded draw information."
+          }
+        }
       }
     }
   }

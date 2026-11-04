@@ -1,0 +1,37 @@
+{
+  "method": "sequential-proportional-approval",
+  "seats": 2,
+  "winners": [
+    "A",
+    "D"
+  ],
+  "tie": true,
+  "trace": [
+    {
+      "round": 1,
+      "tally": {
+        "A": 6.0,
+        "B": 6.0,
+        "C": 3.0,
+        "D": 4.0
+      },
+      "selected": "A",
+      "tied": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "round": 2,
+      "tally": {
+        "B": 3.0,
+        "C": 3.0,
+        "D": 4.0
+      },
+      "selected": "D",
+      "tied": [
+        "D"
+      ]
+    }
+  ]
+}

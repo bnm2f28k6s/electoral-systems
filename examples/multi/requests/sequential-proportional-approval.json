@@ -1,0 +1,38 @@
+{
+  "method": "sequential-proportional-approval",
+  "seats": 2,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "ballots": [
+    {
+      "approvals": [
+        "A",
+        "B"
+      ],
+      "count": 6
+    },
+    {
+      "approvals": [
+        "C",
+        "D"
+      ],
+      "count": 3
+    },
+    {
+      "approvals": [
+        "D"
+      ],
+      "count": 1
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "limit": 1,
+    "seed": 1
+  }
+}

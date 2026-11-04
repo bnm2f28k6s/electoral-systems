@@ -1,6 +1,6 @@
 # Sources and scope
 
-The [Wikipedia comparison](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Compliance_of_selected_single-winner_methods) supplies the coverage checklist: 25 rows spanning single-mark, ranked, graded, credit-budget and lottery methods. Sortition is included as its nonvoting baseline. Multiwinner systems and empirical utility rankings are outside these single-winner counting chapters.
+The [Wikipedia comparison](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Compliance_of_selected_single-winner_methods) supplies the coverage checklist: 25 rows spanning single-mark, ranked, graded, credit-budget and lottery methods. Sortition is included as its nonvoting baseline. These chapters concern single-winner rules. The [multi-winner source notes](/multi-sources.md) cover the companion committee methods; empirical utility rankings remain separate from a counting algorithm.
 
 The site uses original explanations, synthetic examples and self-contained implementations. The comparison is a starting map, not a copied specification. Its incomplete cells, ballot assumptions and distinctions between related variants require further checking. Each chapter names the precise implemented variant, cites its definitions and lists every criterion with an explanation or explicit research limit.
 

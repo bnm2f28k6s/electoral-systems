@@ -1,0 +1,19 @@
+{
+  "method": "approval",
+  "seats": 2,
+  "winners": [
+    "A",
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 6,
+        "B": 6,
+        "C": 3,
+        "D": 4
+      }
+    }
+  ]
+}

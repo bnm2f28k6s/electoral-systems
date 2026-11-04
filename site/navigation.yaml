@@ -86,6 +86,56 @@
       href: /methods/maximal-lotteries.md
     - label: "Sortition (uniform candidate lottery)"
       href: /methods/sortition.md
+- heading: Multiple winners
+  items:
+    - label: Method catalog
+      href: /multi-methods.md
+    - label: Ballots and committees
+      href: /multi-ballots.md
+    - label: Committee criteria
+      href: /multi-criteria.md
+    - label: Committee sources
+      href: /multi-sources.md
+    - label: Committee simulation API
+      href: /multi-api.md
+    - label: "Multi-winner approval voting"
+      href: /multi-methods/approval.md
+    - label: "Proportional approval voting (PAV)"
+      href: /multi-methods/proportional-approval.md
+    - label: "Sequential proportional approval voting"
+      href: /multi-methods/sequential-proportional-approval.md
+    - label: "Reweighted range voting"
+      href: /multi-methods/reweighted-range.md
+    - label: "Single transferable vote (STV)"
+      href: /multi-methods/stv.md
+    - label: "CPO-STV"
+      href: /multi-methods/cpo-stv.md
+    - label: "Schulze STV"
+      href: /multi-methods/schulze-stv.md
+    - label: "Phragm\u00e9n\u2019s sequential rule"
+      href: /multi-methods/phragmen.md
+    - label: "k-Borda"
+      href: /multi-methods/k-borda.md
+    - label: "Bloc voting"
+      href: /multi-methods/bloc.md
+    - label: "Quota Borda system (QBS)"
+      href: /multi-methods/quota-borda.md
+    - label: "Expanding approvals rule (EAR)"
+      href: /multi-methods/expanding-approvals.md
+    - label: "Multi-winner minimax (Simpson)"
+      href: /multi-methods/minimax.md
+    - label: "Minimax minimal size of external opposition"
+      href: /multi-methods/minimax-external-opposition.md
+    - label: "Single non-transferable vote (SNTV)"
+      href: /multi-methods/single-non-transferable.md
+    - label: "Limited voting"
+      href: /multi-methods/limited-vote.md
+    - label: "Cumulative voting"
+      href: /multi-methods/cumulative.md
+    - label: "Multi-winner sortition"
+      href: /multi-methods/sortition.md
+    - label: "Multiple random ballots"
+      href: /multi-methods/multiple-random-ballots.md
 - heading: API reference
   items:
     - open_api_spec: openapi.json

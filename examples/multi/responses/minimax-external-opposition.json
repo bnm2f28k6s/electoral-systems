@@ -1,0 +1,92 @@
+{
+  "method": "minimax-external-opposition",
+  "seats": 2,
+  "winners": [
+    "A",
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "pairwise": {
+        "A": {
+          "A": 0,
+          "B": 9,
+          "C": 6,
+          "D": 6
+        },
+        "B": {
+          "A": 1,
+          "B": 0,
+          "C": 6,
+          "D": 6
+        },
+        "C": {
+          "A": 4,
+          "B": 4,
+          "C": 0,
+          "D": 9
+        },
+        "D": {
+          "A": 4,
+          "B": 4,
+          "C": 1,
+          "D": 0
+        }
+      }
+    },
+    {
+      "committees": [
+        {
+          "committee": [
+            "A",
+            "B"
+          ],
+          "score": 6
+        },
+        {
+          "committee": [
+            "A",
+            "C"
+          ],
+          "score": 4
+        },
+        {
+          "committee": [
+            "A",
+            "D"
+          ],
+          "score": 1
+        },
+        {
+          "committee": [
+            "B",
+            "C"
+          ],
+          "score": 1
+        },
+        {
+          "committee": [
+            "B",
+            "D"
+          ],
+          "score": 1
+        },
+        {
+          "committee": [
+            "C",
+            "D"
+          ],
+          "score": 4
+        }
+      ],
+      "bestScore": 6,
+      "tiedCommittees": [
+        [
+          "A",
+          "B"
+        ]
+      ]
+    }
+  ]
+}

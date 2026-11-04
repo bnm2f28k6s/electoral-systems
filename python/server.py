@@ -6,6 +6,8 @@ from socket import timeout as SocketTimeout
 from urllib.parse import urlsplit
 
 from electoral import ElectionError, METHODS, reject_constant, simulate
+from multi_winner import ElectionError as MultiElectionError
+from multi_winner import METHODS as MULTI_METHODS, simulate as simulate_multi
 
 MAX_BYTES = 1024 * 1024
 
@@ -24,11 +26,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if urlsplit(self.path).path == "/systems":
             self.send_json(200, {"methods": list(METHODS)})
+        elif urlsplit(self.path).path == "/multi/systems":
+            self.send_json(200, {"methods": list(MULTI_METHODS)})
         else:
             self.send_json(404, {"error": "Unknown endpoint"})
 
     def do_POST(self):
-        if urlsplit(self.path).path != "/simulate":
+        path = urlsplit(self.path).path
+        if path not in {"/simulate", "/multi/simulate"}:
             self.send_json(404, {"error": "Unknown endpoint"})
             return
         try:
@@ -52,8 +57,9 @@ class Handler(BaseHTTPRequestHandler):
                 request = json.loads(body.decode("utf-8"), parse_constant=reject_constant)
             except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
                 raise ElectionError("Request must be valid UTF-8 JSON")
-            self.send_json(200, simulate(request))
-        except ElectionError as error:
+            counter = simulate_multi if path == "/multi/simulate" else simulate
+            self.send_json(200, counter(request))
+        except (ElectionError, MultiElectionError) as error:
             self.send_json(error.status, {"error": str(error)})
         except (TimeoutError, SocketTimeout):
             self.send_json(408, {"error": "Request body timed out"})

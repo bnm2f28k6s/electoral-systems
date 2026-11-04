@@ -1,0 +1,19 @@
+{
+  "method": "k-borda",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 21,
+        "B": 13,
+        "C": 17,
+        "D": 9
+      }
+    }
+  ]
+}

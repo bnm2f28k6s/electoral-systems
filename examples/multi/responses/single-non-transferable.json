@@ -1,0 +1,19 @@
+{
+  "method": "single-non-transferable",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 6,
+        "B": 0,
+        "C": 3,
+        "D": 1
+      }
+    }
+  ]
+}
