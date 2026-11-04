@@ -1,7 +1,20 @@
 /** Independent behavior checks: node tests/test_multi_typescript.ts */
 import assert from 'node:assert/strict';
-import {METHODS, simulate, ElectionError} from '../typescript/multi_winner.ts';
+import {METHODS, simulate, ElectionError, asNumber} from '../typescript/multi_winner.ts';
 import type {Method, Ballot, ElectionRequest} from '../typescript/multi_winner.ts';
+
+// Both operands overflow Number individually, but their rational ratio is finite.
+const huge = 10n ** 400n;
+assert.equal(asNumber([huge + 1n, huge]), 1);
+assert.equal(asNumber([3n * huge + 1n, 2n * huge]), 1.5);
+assert.equal(asNumber([huge + 1n, 3n * huge]), 1 / 3);
+assert.equal(asNumber([-huge - 1n, huge]), -1);
+assert.equal(asNumber([1n, 2n ** 1074n]), Number.MIN_VALUE);
+assert.equal(asNumber([3n, 2n ** 1075n]), 2 * Number.MIN_VALUE);
+assert.equal(asNumber([1n, 10n ** 500n]), 0);
+assert.equal(asNumber([1n, 2n ** 1075n]), 0);
+assert.equal(asNumber([2n ** 53n + 1n, 2n ** 53n]), 1);
+assert.equal(asNumber([2n ** 53n + 3n, 2n ** 53n]), 1 + 2 ** -51);
 
 const candidates = ['A', 'B', 'C', 'D'];
 const ranked = [

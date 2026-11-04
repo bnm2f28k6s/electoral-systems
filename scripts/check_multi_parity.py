@@ -52,6 +52,14 @@ def valid_profiles():
         candidates = ["A", "B", "C"]
         for method in METHODS:
             yield example(method, candidates, seats, [candidates, candidates[::-1]], rng, 0)
+    # Larger non-exhaustive profiles exercise fractional transfers and loads
+    # beyond the six-candidate cap used only by committee-comparison methods.
+    for n, seats in ((12, 9), (16, 12)):
+        candidates = ["C" + str(i) for i in range(n)]
+        rankings = [rng.sample(candidates, n) for _ in range(20)]
+        for method in METHODS:
+            if method not in {"proportional-approval", "minimax-external-opposition", "cpo-stv", "schulze-stv"}:
+                yield example(method, candidates, seats, rankings, rng, 0)
     # Exact fractions, zero support, and cutoff ties must agree too.
     for method in ("proportional-approval", "sequential-proportional-approval", "phragmen"):
         for approvals in ([], ["A", "B", "C"]):

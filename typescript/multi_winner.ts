@@ -100,7 +100,31 @@ function subtract(a: Fraction, b: Fraction): Fraction {return add(a, negate(b));
 function multiply(a: Fraction, b: Fraction): Fraction {return fraction(a[0] * b[0], a[1] * b[1]);}
 function divide(a: Fraction, b: Fraction): Fraction {return fraction(a[0] * b[1], a[1] * b[0]);}
 function compare(a: Fraction, b: Fraction): number {const d = a[0] * b[1] - b[0] * a[1]; return d < 0n ? -1 : d > 0n ? 1 : 0;}
-function asNumber(a: Fraction): number {return Number(a[0]) / Number(a[1]);}
+/** Round an exact rational to a JSON-display number without BigInt overflow.
+ * Election decisions use compare(), never this floating-point conversion.
+ */
+export function asNumber(a: Fraction): number {
+  let numerator = a[0], denominator = a[1];
+  if (denominator === 0n) throw new RangeError('A rational denominator cannot be zero');
+  const negative = (numerator < 0n) !== (denominator < 0n);
+  if (numerator < 0n) numerator = -numerator;
+  if (denominator < 0n) denominator = -denominator;
+  if (numerator === 0n) return 0;
+  // Determine the binary exponent while retaining all integer precision.
+  let exponent = numerator.toString(2).length - denominator.toString(2).length;
+  if (exponent >= 0 ? numerator < (denominator << BigInt(exponent)) : (numerator << BigInt(-exponent)) < denominator) exponent--;
+  if (exponent > 1023) return negative ? -Infinity : Infinity;
+  // Normal doubles have 53 significant bits; subnormals use units of 2^-1074.
+  const shift = exponent < -1022 ? 1074 : 52 - exponent;
+  const top = shift >= 0 ? numerator << BigInt(shift) : numerator;
+  const bottom = shift >= 0 ? denominator : denominator << BigInt(-shift);
+  let significant = top / bottom;
+  const remainder = top % bottom;
+  // IEEE-754 round-to-nearest, choosing the even significand at an exact tie.
+  if (2n * remainder > bottom || (2n * remainder === bottom && significant % 2n === 1n)) significant++;
+  const value = Number(significant) * (exponent < -1022 ? Number.MIN_VALUE : 2 ** (exponent - 52));
+  return negative ? -value : value;
+}
 function zeros(candidates: string[]): Tally {return Object.fromEntries(candidates.map(c => [c, 0]));}
 function result(ctx: Context, winners: string[], tie: boolean, trace: Trace): SimulationResult {
   return {method: ctx.method, seats: ctx.seats, winners: ctx.candidates.filter(c => winners.includes(c)), tie, trace};
