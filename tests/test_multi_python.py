@@ -55,6 +55,63 @@ class MultiCountingTests(unittest.TestCase):
         self.assertEqual(phragmen["trace"][1]["loadLevels"]["C"], .5)
         self.assertAlmostEqual(phragmen["trace"][1]["loadLevels"]["B"], 2/3)
 
+    def test_phragmen_overlapping_support_accumulates_load(self):
+        ballots = [{"approvals": list("AB"), "count": 3}, {"approvals": list("AC"), "count": 3},
+                   {"approvals": ["B"], "count": 1}, {"approvals": ["D"], "count": 3}]
+        counted = election("phragmen", ballots, seats=3, candidates=list("ABCD"))
+        # A gives its six supporters load 1/6. B's next level is
+        # (1 + 3/6)/4 = 3/8, C's is (1 + 3/6)/3 = 1/2, and D's is 1/3.
+        # Thus unrepresented D precedes B, whose election raises AB voters' load.
+        self.assertEqual([row["selected"] for row in counted["trace"]], list("ADB"))
+        self.assertEqual(counted["winners"], list("ABD"))
+        self.assertFalse(counted["tie"])
+        self.assertEqual(counted["trace"][1]["loadLevels"], {"B": 3/8, "C": 1/2, "D": 1/3})
+        self.assertEqual(counted["trace"][2]["loads"], [3/8, 1/6, 3/8, 1/3])
+
+    def test_phragmen_matches_independent_water_filling(self):
+        def water_filling(candidates, ballots, seats):
+            loads = [Fraction(0) for _ in ballots]
+            elected, history = [], []
+            for _ in range(seats):
+                levels = {}
+                for candidate in candidates:
+                    if candidate in elected:
+                        continue
+                    supporters = sorted((i for i, ballot in enumerate(ballots)
+                                         if candidate in ballot["approvals"]), key=lambda i: loads[i])
+                    mass, previous_load = 0, Fraction(0)
+                    # Raise the least-loaded supporters until one unit of new
+                    # load fits; do not assume all supporters share a level.
+                    for position, i in enumerate(supporters):
+                        mass += ballots[i]["count"]
+                        previous_load += ballots[i]["count"] * loads[i]
+                        level = (1 + previous_load) / mass
+                        if position + 1 == len(supporters) or level <= loads[supporters[position + 1]]:
+                            levels[candidate] = level
+                            break
+                remaining = [c for c in candidates if c not in elected]
+                selected = min(levels, key=lambda c: levels[c]) if levels else remaining[0]
+                elected.append(selected)
+                if selected in levels:
+                    loads = [max(load, levels[selected]) if selected in ballot["approvals"] else load
+                             for ballot, load in zip(ballots, loads)]
+                history.append((selected, loads[:]))
+            return history
+
+        generator = random.Random(91827)
+        for _ in range(200):
+            candidates = list("ABCDEF")[:generator.randint(1, 6)]
+            seats = generator.randint(1, len(candidates))
+            ballots = [{"approvals": [c for c in candidates if generator.randrange(2)],
+                        "count": generator.randint(1, 12)} for _ in range(generator.randint(1, 12))]
+            expected = water_filling(candidates, ballots, seats)
+            counted = election("phragmen", ballots, seats, candidates)
+            self.assertEqual(len(counted["trace"]), len(expected))
+            for actual, (selected, loads) in zip(counted["trace"], expected):
+                self.assertEqual(actual["selected"], selected)
+                self.assertEqual(actual["loads"], [float(load) for load in loads])
+            self.assertEqual(counted["winners"], [c for c in candidates if c in {row[0] for row in expected}])
+
     def test_reweighted_range_uses_score_divisor(self):
         ballots = [{"scores": {"A": 5, "B": 5, "C": 0}, "count": 3},
                    {"scores": {"A": 0, "B": 0, "C": 5}, "count": 2}]

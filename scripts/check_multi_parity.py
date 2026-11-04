@@ -120,8 +120,10 @@ def main():
         try:
             expected = simulate(copy.deepcopy(request))
         except ElectionError as error:
+            assert index >= len(valid), "Generated valid profile was rejected: " + repr(request)
             assert not answer["ok"] and answer["status"] == error.status, (index, request, answer, error.status)
         else:
+            assert index < len(valid), "An invalid profile was unexpectedly accepted: " + repr(request)
             assert answer["ok"], (index, request, answer)
             try:
                 same(answer["result"], expected)

@@ -470,7 +470,7 @@ def reject_constant(value):
 
 if __name__ == "__main__":
     try:
-        print(json.dumps(simulate(json.load(sys.stdin, parse_constant=reject_constant)), ensure_ascii=False, allow_nan=False))
+        print(json.dumps(simulate(json.load(sys.stdin, parse_constant=reject_constant)), ensure_ascii=True, allow_nan=False))
     except (ElectionError, json.JSONDecodeError, RecursionError) as error:
         print(json.dumps({"error": str(error)}), file=sys.stderr)
         sys.exit(1)

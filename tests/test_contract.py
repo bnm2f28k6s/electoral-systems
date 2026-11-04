@@ -17,6 +17,9 @@ from fixtures import METHOD_IDS, EXPECTED_WINNERS
 from server import Handler
 
 
+UNICODE_IDS = ["\ud800", "\udfff", "A\ud800B", "🌱"]
+
+
 def assert_equivalent(test, actual, expected):
     if isinstance(expected, dict):
         test.assertEqual(set(actual), set(expected))
@@ -33,6 +36,16 @@ def assert_equivalent(test, actual, expected):
 
 
 class PublishedExamples(unittest.TestCase):
+    def test_cli_round_trips_unicode_identifiers(self):
+        for identifier in UNICODE_IDS:
+            request = {"method": "approval", "candidates": [identifier],
+                       "ballots": [{"approvals": [identifier]}]}
+            for command, path in ((sys.executable, "python/electoral.py"), ("node", "typescript/cli.ts")):
+                with self.subTest(identifier=ascii(identifier), command=command):
+                    completed = subprocess.run([command, str(ROOT / path)], input=json.dumps(request),
+                                               capture_output=True, text=True, check=True, timeout=30)
+                    self.assertEqual(json.loads(completed.stdout), simulate(request))
+
     def test_criteria_guide_counterexamples(self):
         def ranked(method, rows):
             return simulate({"method": method, "candidates": ["A", "B", "C"],
@@ -125,6 +138,15 @@ class HttpContract(unittest.TestCase):
                 status, body = self.call("POST", "/simulate", entry["value"])
                 self.assertEqual(status, 200)
                 assert_equivalent(self, body, operation["responses"]["200"]["content"]["application/json"]["examples"][method]["value"])
+
+    def test_http_round_trips_unicode_identifiers(self):
+        for identifier in UNICODE_IDS:
+            request = {"method": "approval", "candidates": [identifier],
+                       "ballots": [{"approvals": [identifier]}]}
+            with self.subTest(identifier=ascii(identifier)):
+                status, body = self.call("POST", "/simulate", request)
+                self.assertEqual(status, 200)
+                self.assertEqual(body, simulate(request))
 
     def test_api_guide_response_and_copyable_clients(self):
         guide = (ROOT / "site/api-design.md").read_text()

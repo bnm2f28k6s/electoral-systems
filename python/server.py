@@ -16,7 +16,8 @@ class Handler(BaseHTTPRequestHandler):
     body_timeout = 10
 
     def send_json(self, status, data):
-        encoded = json.dumps(data, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        # Escape surrogate code units accepted by JSON instead of failing UTF-8 encoding.
+        encoded = json.dumps(data, ensure_ascii=True, allow_nan=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(encoded)))

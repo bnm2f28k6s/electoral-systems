@@ -501,7 +501,7 @@ def simulate(request):
 
 if __name__ == "__main__":
     try:
-        print(json.dumps(simulate(json.load(sys.stdin, parse_constant=reject_constant)), ensure_ascii=False))
+        print(json.dumps(simulate(json.load(sys.stdin, parse_constant=reject_constant)), ensure_ascii=True))
     except (ElectionError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}), file=sys.stderr)
         sys.exit(1)
