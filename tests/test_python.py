@@ -1,4 +1,5 @@
 """Independent examples, criterion checks, exact-search and HTTP regressions."""
+from collections import deque
 import http.client
 import importlib.util
 import itertools
@@ -12,7 +13,7 @@ from http.server import HTTPServer
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from electoral import ElectionError, METHODS, simulate
+from electoral import ElectionError, METHODS, simulate, smith_set
 from server import Handler
 
 
@@ -65,6 +66,65 @@ class CountingTests(unittest.TestCase):
                 value = ranked(method, ballots, ["A", "B"])
                 self.assertEqual(value["winners"], ["A", "B"])
                 self.assertTrue(value["tie"])
+
+    def test_equal_intermediate_counts_do_not_end_elimination(self):
+        ballots = [{"ranking": list(order)} for order in ["ABC", "BAC", "CAB"]]
+        # A and B are both above C on two of the three ballots.
+        # Returning all first-round ties would wrongly admit C.
+        self.assertEqual(ranked("instant-runoff", ballots)["winners"], ["A"])
+        self.assertEqual(ranked("instant-runoff", ballots)["trace"][0]["eliminated"], ["C"])
+
+    def test_smith_closure_matches_independent_subset_oracle(self):
+        generator = random.Random(5812)
+        for n in range(1, 6):
+            candidates = list("ABCDE"[:n])
+            for _ in range(100):
+                matrix = {x: dict.fromkeys(candidates, 0) for x in candidates}
+                for x, y in itertools.combinations(candidates, 2):
+                    matrix[x][y] = generator.randrange(7)
+                    matrix[y][x] = 6-matrix[x][y]
+                oracle = None
+                for size in range(1, n+1):
+                    for subset in itertools.combinations(candidates, size):
+                        if all(matrix[x][y] > matrix[y][x] for x in subset for y in candidates if y not in subset):
+                            oracle = list(subset)
+                            break
+                    if oracle is not None:
+                        break
+                self.assertEqual(smith_set(candidates, matrix), oracle)
+
+    def test_dodgson_scores_match_full_adjacent_swap_bfs(self):
+        # This oracle allows every adjacent swap of every candidate, rather
+        # than assuming that promoting the candidate suffices as the DP does.
+        orders = list(itertools.permutations(CANDIDATES))
+        for profile in itertools.combinations_with_replacement(orders, 3):
+            pending = deque([(profile, 0)])
+            visited = {profile}
+            costs = {}
+            while pending and len(costs) < 3:
+                state, distance = pending.popleft()
+                for x in CANDIDATES:
+                    if x not in costs and all(x == y or sum(r.index(x) < r.index(y) for r in state) >= 2 for y in CANDIDATES):
+                        costs[x] = distance
+                for voter in range(3):
+                    for position in range(2):
+                        order = list(state[voter])
+                        order[position], order[position+1] = order[position+1], order[position]
+                        changed = state[:voter] + (tuple(order),) + state[voter+1:]
+                        if changed not in visited:
+                            visited.add(changed)
+                            pending.append((changed, distance+1))
+            ballots = [{"ranking": list(order)} for order in profile]
+            self.assertEqual(ranked("dodgson", ballots)["trace"][1]["adjacentSwaps"], costs)
+
+    def test_maximal_lottery_nonuniform_cycle(self):
+        ballots = [{"ranking": list("ABC"), "count": 2},
+                   {"ranking": list("BCA"), "count": 2},
+                   {"ranking": list("CAB"), "count": 1}]
+        value = ranked("maximal-lotteries", ballots)
+        self.assertEqual(value["lottery"], [{"candidate": "A", "probability": .6},
+                                           {"candidate": "B", "probability": .2},
+                                           {"candidate": "C", "probability": .2}])
 
     def test_nonterminal_elimination_ties_use_input_priority(self):
         value = ranked("instant-runoff")

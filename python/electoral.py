@@ -202,7 +202,7 @@ def elimination(c, ballots, mode):
             tally = first
             worst = best(tally, True)
         row = {"active": active[:], "tally": tally}
-        if len(set(tally.values())) == 1:
+        if len(set(tally.values())) == 1 and (mode == "nanson" or len(active) == 2):
             trace.append(row)
             return result(active, trace)
         if mode == "nanson":
