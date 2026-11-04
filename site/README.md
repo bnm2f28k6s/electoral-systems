@@ -1,6 +1,6 @@
 # Electoral systems as algorithms
 
-An election rule turns ballots into a result. Different rules can choose different winners from the same voters. This guide explains **25 ways to choose one winner and 19 ways to elect a committee**, with worked counts, criteria, runnable Python and TypeScript, and a local API that executes the algorithms.
+An election rule turns ballots into a result. Different rules can choose different winners from the same voters. This guide explains **25 ways to choose one winner and 19 ways to elect a committee**, with worked counts, criteria, runnable Python, TypeScript, and Go, and a local API that executes the algorithms.
 
 Start with [plurality](/methods/plurality.md): each voter supports one candidate, and the largest total wins. Then try [instant-runoff](/methods/instant-runoff.md), which transfers preferences, or [approval](/methods/approval.md), which lets voters support several candidates. The [single-winner catalog](/methods.md) covers every row in the source comparison table, including its lottery methods. For several seats, start with the [multi-winner catalog](/multi-methods.md): compare bloc voting, proportional approval, transferable votes, and other committee rules.
 
@@ -11,7 +11,7 @@ Start with [plurality](/methods/plurality.md): each voter supports one candidate
     A single mark, an ordered ranking, approvals, and numerical scores convey different information. Read the [ballot guide](/ballots.md) before comparing results.
   </Step>
   <Step title="Run a counting rule">
-    Each method chapter explains the steps, shows intermediate counts, and includes complete Python and TypeScript examples. Copy a code block into a file and run it locally.
+    Each method chapter explains the steps, shows intermediate counts, and includes complete Python, TypeScript, and Go examples. Copy a code block into a file and run it locally. Go examples need Go 1.23 or newer and run with `go run example.go`.
   </Step>
   <Step title="Understand the tradeoffs">
     A criterion is a precise guarantee over elections, not a quality score. Read the [single-winner criteria](/criteria.md) or [committee criteria](/multi-criteria.md) and each method's qualifications. No rule satisfies every desirable property.

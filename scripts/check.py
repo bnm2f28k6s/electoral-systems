@@ -66,13 +66,13 @@ def main():
         url = PREFIX + "methods/" + method["id"] + ".html"
         assert url in indexed_urls, f"Method missing from search: {method['id']}"
         rendered = (OUT / "methods" / (method["id"] + ".html")).read_text()
-        assert "language-python" in rendered and "language-typescript" in rendered, f"Missing code tabs: {method['id']}"
+        assert all("language-" + language in rendered for language in ("python", "typescript", "go")), f"Missing code tabs: {method['id']}"
     multi_catalog = json.loads((ROOT / "data/multi_methods.json").read_text())
     for method in multi_catalog:
         url = PREFIX + "multi-methods/" + method["id"] + ".html"
         assert url in indexed_urls, f"Committee method missing from search: {method['id']}"
         rendered = (OUT / "multi-methods" / (method["id"] + ".html")).read_text()
-        assert "language-python" in rendered and "language-typescript" in rendered, f"Missing committee code tabs: {method['id']}"
+        assert all("language-" + language in rendered for language in ("python", "typescript", "go")), f"Missing committee code tabs: {method['id']}"
     for path in OUT.rglob("*"):
         if path.is_file():
             assert not re.search(rb"/Users/|/home/runner/|BEGIN .*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}", path.read_bytes()), "Potential private data in output"

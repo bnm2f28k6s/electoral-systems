@@ -2,7 +2,7 @@
 
 A committee has a fixed number of seats. Some rules select the highest individual totals; others try to represent groups with different preferences. Electing several candidates does not automatically make a rule proportional.
 
-This catalog covers all 19 rows in the [starting comparison's multi-winner table](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Criterion_tables), with precise counting variants, executable Python and TypeScript, and API requests. The [criteria guide](/multi-criteria.md) explains every comparison criterion, distinctions between committee preferences, and the additional approval-representation criteria used here.
+This catalog covers all 19 rows in the [starting comparison's multi-winner table](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Criterion_tables), with precise counting variants, executable Python, TypeScript, and Go, and API requests. The [criteria guide](/multi-criteria.md) explains every comparison criterion, distinctions between committee preferences, and the additional approval-representation criteria used here.
 
 | Method | Ballot | Basic idea |
 | --- | --- | --- |

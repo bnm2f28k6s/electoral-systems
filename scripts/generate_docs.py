@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 from electoral import METHODS, simulate, validate
 from fixtures import METHOD_IDS, EXPECTED_WINNERS, example_request
+from generate_go_examples import go_examples
 
 
 def dependency_names(source, names):
@@ -72,7 +73,7 @@ def md_cell(value):
     return str(value).replace("|", "\\|").replace("\n", " ")
 
 
-def chapter(method, criteria, request, answer, py, ts):
+def chapter(method, criteria, request, answer, py, ts, go):
     name, ident = method["name"], method["id"]
     winners = ", ".join(answer["winners"])
     result_text = (f"The sampled winner is **{winners}** with seed 1. The distribution in the response describes the rule; the sampled name is one reproducible draw."
@@ -89,7 +90,7 @@ def chapter(method, criteria, request, answer, py, ts):
         rows.append(f'| [{criterion["name"]}](/criteria.md#{criterion["id"]}) | {claim["status"]} | {md_cell(claim["explanation"])}{evidence} |')
     steps = "\n".join(f"{i}. {step}" for i, step in enumerate(method["steps"], 1))
     sources = "\n".join(f'- [{item["title"]}]({item["url"]})' for item in method["sources"])
-    repo = "https://github.com/bnm2f28k6s/electoral-systems/blob/codex/initial-single-winner-examples/"
+    repo = "https://github.com/bnm2f28k6s/electoral-systems/blob/main/"
     return f'''# {name}
 
 {method["summary"]}
@@ -120,7 +121,7 @@ def chapter(method, criteria, request, answer, py, ts):
 
 ## Run the algorithm
 
-Each block is a complete program with its sample input and required helpers. Python requires 3.9 or newer; TypeScript runs directly with Node 22.18 or newer. Replace the sample with valid input using the same format. The examples focus on counting valid data; the [API server](/api-design.md) performs full validation before running the count.
+Each block is a complete program with its sample input and required helpers. Python requires 3.9 or newer; TypeScript runs directly with Node 22.18 or newer; Go requires 1.23 or newer. Replace the sample with valid input using the same format. The [API server](/api-design.md) runs Python; the Go examples count locally without a server or project imports.
 
 <CodeSelect title="{name.replace('&', '&amp;').replace(chr(34), '&quot;')} — complete algorithm">
 
@@ -132,9 +133,13 @@ Each block is a complete program with its sample input and required helpers. Pyt
 {ts.rstrip()}
 ```
 
+```go
+{go.rstrip()}
+```
+
 </CodeSelect>
 
-Download the standalone [Python]({repo}examples/python/{ident}.py) or [TypeScript]({repo}examples/typescript/{ident}.ts) file. The complete engines use the same functions.
+Download the standalone [Python]({repo}examples/python/{ident}.py), [TypeScript]({repo}examples/typescript/{ident}.ts), or [Go]({repo}examples/go/{ident}.go) file. The complete engines use the same functions.
 
 ## Simulate this method through HTTP
 
@@ -174,7 +179,8 @@ def main():
     methods = json.loads((ROOT / "data/methods.json").read_text())
     criteria = json.loads((ROOT / "data/criteria.json").read_text())
     assert [m["id"] for m in methods] == METHOD_IDS
-    for folder in ("site/methods", "examples/python", "examples/typescript", "examples/requests", "examples/responses"):
+    go_programs = go_examples({m["id"]: example_request(m["id"]) for m in methods}, "single")
+    for folder in ("site/methods", "examples/python", "examples/typescript", "examples/go", "examples/requests", "examples/responses"):
         (ROOT / folder).mkdir(parents=True, exist_ok=True)
     for method in methods:
         ident = method["id"]
@@ -185,10 +191,11 @@ def main():
         py, ts = python_example(ident, request), typescript_example(ident, request)
         (ROOT / f"examples/python/{ident}.py").write_text(py)
         (ROOT / f"examples/typescript/{ident}.ts").write_text(ts)
+        (ROOT / f"examples/go/{ident}.go").write_text(go_programs[ident])
         for kind, value in (("requests", request), ("responses", answer)):
             (ROOT / f"examples/{kind}/{ident}.json").write_text(json.dumps(value, indent=2) + "\n")
-        (ROOT / f"site/methods/{ident}.md").write_text(chapter(method, criteria, request, answer, py, ts))
-    catalog = "# Single-winner method catalog\n\nChoose a rule by the information voters provide and the counting steps you want to understand. Every method below has a worked example, complete Python and TypeScript, all 25 criterion entries, and an executable API request.\n\nCoverage follows every method row in the [starting comparison](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Compliance_of_selected_single-winner_methods), including random selection and the specified quadratic demonstration. This is a coverage map, not a ranking of methods.\n\n| Method | Ballot | Basic idea |\n| --- | --- | --- |\n"
+        (ROOT / f"site/methods/{ident}.md").write_text(chapter(method, criteria, request, answer, py, ts, go_programs[ident]))
+    catalog = "# Single-winner method catalog\n\nChoose a rule by the information voters provide and the counting steps you want to understand. Every method below has a worked example, complete Python, TypeScript, and Go, all 25 criterion entries, and an executable API request.\n\nCoverage follows every method row in the [starting comparison](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Compliance_of_selected_single-winner_methods), including random selection and the specified quadratic demonstration. This is a coverage map, not a ranking of methods.\n\n| Method | Ballot | Basic idea |\n| --- | --- | --- |\n"
     catalog += "\n".join(f'| [{m["name"]}](/methods/{m["id"]}.md) | {md_cell(m["ballot"])} | {md_cell(m["summary"])} |' for m in methods)
     (ROOT / "site/methods.md").write_text(catalog + "\n\nRead [ballot formats](/ballots.md) and [criteria](/criteria.md) to understand the assumptions behind comparisons. [Sources](/sources.md) explain the research boundaries.\n")
     navigation = "- heading: Learn\n  items:\n"
@@ -201,7 +208,7 @@ def main():
                 navigation += f'    - label: {json.dumps(m["name"])}\n      href: /methods/{m["id"]}.md\n'
     navigation += "- heading: API reference\n  items:\n    - open_api_spec: openapi.json\n"
     (ROOT / "site/navigation.yaml").write_text(navigation)
-    print(f"Generated {len(methods)} chapters, {2 * len(methods)} standalone programs, and matching API fixtures")
+    print(f"Generated {len(methods)} chapters, {3 * len(methods)} standalone programs, and matching API fixtures")
     from generate_multi_docs import main as generate_multi
     generate_multi()
 

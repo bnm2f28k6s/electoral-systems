@@ -19,6 +19,16 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22.18.0'
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.3'
+          cache: false
+      - name: Check native Go engines and tooling
+        working-directory: go
+        run: |
+          test -z "$(gofmt -l .)"
+          go vet ./...
+          go test -race ./...
       - name: Verify counting engines, standalone examples, and HTTP contract
         run: |
           python3 -m unittest discover -s tests -p 'test_*.py'
@@ -26,6 +36,7 @@ jobs:
           python3 scripts/check_parity.py
           node tests/test_multi_typescript.ts
           python3 scripts/check_multi_parity.py
+          python3 scripts/check_go_parity.py
       - name: Check TypeScript engine types
         run: npm_config_ignore_scripts=true npx --yes --package typescript@5.9.3 tsc -p typescript/tsconfig.json
       - name: Verify generated examples and API contract stay current
@@ -33,6 +44,7 @@ jobs:
           python3 scripts/generate_docs.py
           python3 scripts/generate_openapi.py
           git diff --exit-code -- examples site
+          test -z "$(git ls-files --others --exclude-standard -- examples site)"
       - name: Install pinned Docapella
         run: ./scripts/install-docapella.sh
       - name: Build documentation
@@ -43,6 +55,22 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           path: site/_build
+  go-compatibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.23.12'
+          cache: false
+      - name: Verify the minimum supported Go version
+        working-directory: go
+        run: |
+          go vet ./...
+          go test ./...
+          GOARCH=386 CGO_ENABLED=0 go test ./...
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
