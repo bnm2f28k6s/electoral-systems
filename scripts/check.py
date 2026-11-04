@@ -30,7 +30,9 @@ class Page(HTMLParser):
 
 def main():
     pages = {p: Page(p.read_text()) for p in OUT.rglob("*.html")}
-    assert len(pages) == 5, "Unexpected published page count"
+    spec = json.loads((ROOT / "site/openapi.json").read_text())
+    expected_pages = len(list((ROOT / "site").glob("*.md"))) + len(list((ROOT / "site/methods").glob("*.md"))) + 1 + len(spec["tags"])
+    assert len(pages) == expected_pages, f"Expected {expected_pages} pages; found {len(pages)}"
     checked = 0
 
     def check_link(url, source):
@@ -58,6 +60,13 @@ def main():
     for doc in docs:
         check_link(doc["page_url"], OUT / "index.html")
     assert any("algorithm" in d.get("title", "").lower() for d in docs)
+    catalog = json.loads((ROOT / "data/methods.json").read_text())
+    indexed_urls = {d["page_url"] for d in docs}
+    for method in catalog:
+        url = PREFIX + "methods/" + method["id"] + ".html"
+        assert url in indexed_urls, f"Method missing from search: {method['id']}"
+        rendered = (OUT / "methods" / (method["id"] + ".html")).read_text()
+        assert "language-python" in rendered and "language-typescript" in rendered, f"Missing code tabs: {method['id']}"
     for path in OUT.rglob("*"):
         if path.is_file():
             assert not re.search(rb"/Users/|/home/runner/|BEGIN .*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}", path.read_bytes()), "Potential private data in output"
