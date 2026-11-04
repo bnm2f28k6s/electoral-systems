@@ -50,7 +50,8 @@ export function normalize(input: unknown): Context {
   if (!(METHODS as readonly unknown[]).includes(input.method)) throw new ElectionError('Unknown method');
   const method = input.method as Method;
   const candidates = input.candidates;
-  if (!Array.isArray(candidates) || !candidates.length || candidates.some(c => typeof c !== 'string' || !c.trim() || [...c].length > 100) || new Set(candidates).size !== candidates.length)
+  // Count Unicode codepoints; the whitespace set matches Python str.strip().
+  if (!Array.isArray(candidates) || !candidates.length || candidates.some(c => typeof c !== 'string' || /^[\u0009-\u000d\u001c-\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]*$/u.test(c) || Array.from(c).length > 100) || new Set(candidates).size !== candidates.length)
     throw new ElectionError('candidates must be unique nonempty strings');
   if (candidates.length > 32) throw new ElectionError('At most 32 candidates are supported', 413);
   if (!Array.isArray(input.ballots)) throw new ElectionError('ballots must be an array');

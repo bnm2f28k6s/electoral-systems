@@ -59,6 +59,11 @@ def valid_profiles():
            "ballots": [{"scores": {"A": 5.0, "B": 2e0}, "count": 2.0}],
            "options": {"maxScore": 5.0, "seed": 1.0, "budget": 100.0}}
 
+    # maxLength counts Unicode characters, including astral symbols, not UTF-16 units.
+    for identifier in ("🌱" * 100, "\ufeff"):
+        yield {"method": "plurality", "candidates": [identifier],
+               "ballots": [{"choice": identifier}]}
+
 
 def invalid_profiles():
     base = {"method": "borda", "candidates": ["A", "B", "C"],
@@ -68,7 +73,9 @@ def invalid_profiles():
     yield {}
     yield {**base, "method": "unknown"}
     yield {**base, "unknown": True}
-    for candidates in ([], [""], [" "], ["A", "A"], ["A" * 101], list(map(str, range(33)))):
+    for candidates in ([], [""], [" "], ["A", "A"], ["A" * 101], ["🌱" * 101],
+                       ["\u0085"], ["\u001c"], ["\u001d"], ["\u001e"], ["\u001f"],
+                       list(map(str, range(33)))):
         yield {**base, "candidates": candidates}
     for options in (None, [], {"seed": -1}, {"seed": 4294967296}, {"seed": 1.5},
                     {"maxScore": 0}, {"maxScore": 101}, {"budget": 0},
