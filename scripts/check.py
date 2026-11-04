@@ -31,7 +31,7 @@ class Page(HTMLParser):
 def main():
     pages = {p: Page(p.read_text()) for p in OUT.rglob("*.html")}
     spec = json.loads((ROOT / "site/openapi.json").read_text())
-    expected_pages = len(list((ROOT / "site").glob("*.md"))) + len(list((ROOT / "site/methods").glob("*.md"))) + 1 + len(spec["tags"])
+    expected_pages = len([p for p in (ROOT / "site").rglob("*.md") if "_build" not in p.parts]) + 1 + len(spec["tags"])
     assert len(pages) == expected_pages, f"Expected {expected_pages} pages; found {len(pages)}"
     checked = 0
 
@@ -67,6 +67,12 @@ def main():
         assert url in indexed_urls, f"Method missing from search: {method['id']}"
         rendered = (OUT / "methods" / (method["id"] + ".html")).read_text()
         assert "language-python" in rendered and "language-typescript" in rendered, f"Missing code tabs: {method['id']}"
+    multi_catalog = json.loads((ROOT / "data/multi_methods.json").read_text())
+    for method in multi_catalog:
+        url = PREFIX + "multi-methods/" + method["id"] + ".html"
+        assert url in indexed_urls, f"Committee method missing from search: {method['id']}"
+        rendered = (OUT / "multi-methods" / (method["id"] + ".html")).read_text()
+        assert "language-python" in rendered and "language-typescript" in rendered, f"Missing committee code tabs: {method['id']}"
     for path in OUT.rglob("*"):
         if path.is_file():
             assert not re.search(rb"/Users/|/home/runner/|BEGIN .*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}", path.read_bytes()), "Potential private data in output"

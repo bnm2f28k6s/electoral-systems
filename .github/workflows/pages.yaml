@@ -1,7 +1,7 @@
 name: Documentation and GitHub Pages
 on:
   push:
-    branches: [main, codex/initial-single-winner-examples]
+    branches: [main, codex/initial-single-winner-examples, codex/initial-multi-winner-examples]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -24,6 +24,10 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_*.py'
           node tests/test_typescript.ts
           python3 scripts/check_parity.py
+          node tests/test_multi_typescript.ts
+          python3 scripts/check_multi_parity.py
+      - name: Check TypeScript engine types
+        run: npm_config_ignore_scripts=true npx --yes --package typescript@5.9.3 tsc -p typescript/tsconfig.json
       - name: Verify generated examples and API contract stay current
         run: |
           python3 scripts/generate_docs.py
