@@ -1,0 +1,19 @@
+{
+  "method": "cumulative",
+  "seats": 2,
+  "winners": [
+    "A",
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "tally": {
+        "A": 360,
+        "B": 240,
+        "C": 180,
+        "D": 220
+      }
+    }
+  ]
+}

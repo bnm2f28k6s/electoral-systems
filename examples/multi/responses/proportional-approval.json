@@ -1,0 +1,68 @@
+{
+  "method": "proportional-approval",
+  "seats": 2,
+  "winners": [
+    "A",
+    "D"
+  ],
+  "tie": true,
+  "trace": [
+    {
+      "committees": [
+        {
+          "committee": [
+            "A",
+            "B"
+          ],
+          "score": 9.0
+        },
+        {
+          "committee": [
+            "A",
+            "C"
+          ],
+          "score": 9.0
+        },
+        {
+          "committee": [
+            "A",
+            "D"
+          ],
+          "score": 10.0
+        },
+        {
+          "committee": [
+            "B",
+            "C"
+          ],
+          "score": 9.0
+        },
+        {
+          "committee": [
+            "B",
+            "D"
+          ],
+          "score": 10.0
+        },
+        {
+          "committee": [
+            "C",
+            "D"
+          ],
+          "score": 5.5
+        }
+      ],
+      "bestScore": 10.0,
+      "tiedCommittees": [
+        [
+          "A",
+          "D"
+        ],
+        [
+          "B",
+          "D"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "method": "reweighted-range",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "round": 1,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "tally": {
+        "A": 30.0,
+        "B": 24.0,
+        "C": 19.0,
+        "D": 17.0
+      },
+      "selected": "A",
+      "tied": [
+        "A"
+      ]
+    },
+    {
+      "round": 2,
+      "weights": [
+        0.5,
+        1.0,
+        1.0
+      ],
+      "tally": {
+        "B": 12.0,
+        "C": 19.0,
+        "D": 17.0
+      },
+      "selected": "C",
+      "tied": [
+        "C"
+      ]
+    }
+  ]
+}

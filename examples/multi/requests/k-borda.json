@@ -1,0 +1,45 @@
+{
+  "method": "k-borda",
+  "seats": 2,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "ballots": [
+    {
+      "ranking": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "count": 6
+    },
+    {
+      "ranking": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "count": 3
+    },
+    {
+      "ranking": [
+        "D",
+        "C",
+        "B",
+        "A"
+      ],
+      "count": 1
+    }
+  ],
+  "options": {
+    "maxScore": 5,
+    "budget": 100,
+    "limit": 1,
+    "seed": 1
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "method": "quota-borda",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "quota": 3.4444444444444446,
+      "borda": {
+        "A": 21,
+        "B": 13,
+        "C": 17,
+        "D": 9
+      }
+    },
+    {
+      "depth": 1,
+      "demands": [
+        {
+          "candidates": [
+            "A"
+          ],
+          "seats": 1
+        }
+      ],
+      "selected": "A",
+      "tied": [
+        "A"
+      ]
+    },
+    {
+      "depth": 2,
+      "demands": [
+        {
+          "candidates": [
+            "C",
+            "D"
+          ],
+          "seats": 1
+        }
+      ],
+      "selected": "C",
+      "tied": [
+        "C"
+      ]
+    }
+  ]
+}

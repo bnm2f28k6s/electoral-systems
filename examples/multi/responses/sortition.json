@@ -1,0 +1,32 @@
+{
+  "method": "sortition",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "round": 1,
+      "probabilities": {
+        "A": 0.25,
+        "B": 0.25,
+        "C": 0.25,
+        "D": 0.25
+      },
+      "selected": "A",
+      "state": 1015568748
+    },
+    {
+      "round": 2,
+      "probabilities": {
+        "B": 0.3333333333333333,
+        "C": 0.3333333333333333,
+        "D": 0.3333333333333333
+      },
+      "selected": "C",
+      "state": 1586005467
+    }
+  ]
+}

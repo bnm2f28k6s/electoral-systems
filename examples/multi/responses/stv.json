@@ -1,0 +1,49 @@
+{
+  "method": "stv",
+  "seats": 2,
+  "winners": [
+    "A",
+    "C"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "quota": 4
+    },
+    {
+      "tally": {
+        "A": 6.0,
+        "B": 0.0,
+        "C": 3.0,
+        "D": 1.0
+      },
+      "elected": "A",
+      "tied": [
+        "A"
+      ],
+      "transferFactor": 0.3333333333333333
+    },
+    {
+      "tally": {
+        "B": 2.0,
+        "C": 3.0,
+        "D": 1.0
+      },
+      "eliminated": "D",
+      "tied": [
+        "D"
+      ]
+    },
+    {
+      "tally": {
+        "B": 2.0,
+        "C": 4.0
+      },
+      "elected": "C",
+      "tied": [
+        "C"
+      ],
+      "transferFactor": 0.0
+    }
+  ]
+}

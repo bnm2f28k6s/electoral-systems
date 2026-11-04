@@ -1,4 +1,4 @@
-# Understanding voting criteria
+# Understanding single-winner voting criteria
 
 A criterion asks what a voting rule promises across a whole class of elections. A worked example shows one count. It cannot prove that the rule always meets a criterion, and a simulation’s result should not be read as a recommendation for a particular election.
 

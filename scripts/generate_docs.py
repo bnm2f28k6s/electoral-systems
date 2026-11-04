@@ -202,6 +202,8 @@ def main():
     navigation += "- heading: API reference\n  items:\n    - open_api_spec: openapi.json\n"
     (ROOT / "site/navigation.yaml").write_text(navigation)
     print(f"Generated {len(methods)} chapters, {2 * len(methods)} standalone programs, and matching API fixtures")
+    from generate_multi_docs import main as generate_multi
+    generate_multi()
 
 
 if __name__ == "__main__":

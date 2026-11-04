@@ -1,0 +1,43 @@
+{
+  "method": "multiple-random-ballots",
+  "seats": 2,
+  "winners": [
+    "A",
+    "B"
+  ],
+  "tie": false,
+  "trace": [
+    {
+      "round": 1,
+      "tally": {
+        "A": 6,
+        "B": 0,
+        "C": 3,
+        "D": 1
+      },
+      "probabilities": {
+        "A": 0.6,
+        "B": 0.0,
+        "C": 0.3,
+        "D": 0.1
+      },
+      "selected": "A",
+      "state": 1015568748
+    },
+    {
+      "round": 2,
+      "tally": {
+        "B": 6,
+        "C": 3,
+        "D": 1
+      },
+      "probabilities": {
+        "B": 0.6,
+        "C": 0.3,
+        "D": 0.1
+      },
+      "selected": "B",
+      "state": 1586005467
+    }
+  ]
+}

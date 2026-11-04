@@ -65,7 +65,7 @@ def main():
     catalog = json.loads((ROOT / "data/methods.json").read_text())
     spec = {
         "openapi": "3.0.3",
-        "info": {"title": "Electoral systems simulation API", "version": "1.0.0", "description": "Local teaching server executing the same Python counting algorithms shown in the chapters. Start it with `python3 python/server.py`. GitHub Pages hosts documentation only. Results include intermediate counts; a tie remains a set of co-winners. See the API guide for exact variants, tie priorities, and computational limits."},
+        "info": {"title": "Electoral systems simulation API", "version": "1.0.0", "description": "Local teaching server executing the same Python counting algorithms shown in the chapters. Start it with `python3 python/server.py`. GitHub Pages hosts documentation only. Single-winner results include intermediate counts; a final tie remains a set of co-winners. See the API guides for exact variants, tie priorities, and computational limits."},
         "servers": [{"url": "http://127.0.0.1:8000", "description": "Local Python simulation server"}],
         "tags": [{"name": "Systems", "description": "Available method identifiers."}, {"name": "Simulations", "description": "Execute a synthetic single-winner election."}],
         "paths": {
@@ -75,6 +75,8 @@ def main():
         },
         "components": {"schemas": schemas},
     }
+    from generate_multi_openapi import extend
+    spec = extend(spec)
     (ROOT / "site/openapi.json").write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n")
 
 
