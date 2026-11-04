@@ -1,6 +1,6 @@
 # Single-winner method catalog
 
-Choose a rule by the information voters provide and the counting steps you want to understand. Every method below has a worked example, complete Python and TypeScript, all 25 criterion entries, and an executable API request.
+Choose a rule by the information voters provide and the counting steps you want to understand. Every method below has a worked example, complete Python, TypeScript, and Go, all 25 criterion entries, and an executable API request.
 
 Coverage follows every method row in the [starting comparison](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Compliance_of_selected_single-winner_methods), including random selection and the specified quadratic demonstration. This is a coverage map, not a ranking of methods.
 

@@ -1,4 +1,4 @@
-"""Generate multi-winner chapters and standalone Python/TypeScript programs."""
+"""Generate multi-winner chapters and standalone Python/TypeScript/Go programs."""
 import ast
 import html
 import json
@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "python"))
 from multi_winner import METHODS, simulate, validate
 from multi_fixtures import METHOD_IDS, EXPECTED_WINNERS, EXAMPLE_EXPLANATIONS, example_request
 from generate_docs import closure, md_cell
+from generate_go_examples import go_examples
 
 
 def prose(value):
@@ -53,7 +54,7 @@ def typescript_example(method, request):
             + f"console.log(JSON.stringify({function}(election), null, 2));\n")
 
 
-def chapter(method, criteria, request, answer, py, ts):
+def chapter(method, criteria, request, answer, py, ts, go):
     ident, name = method["id"], method["name"]
     committee = " and ".join(answer["winners"])
     rows = []
@@ -63,7 +64,7 @@ def chapter(method, criteria, request, answer, py, ts):
         rows.append(f'| [{criterion["name"]}](/multi-criteria.md#{criterion["id"]}) | {claim["status"]} | {md_cell(prose(claim["explanation"]))}{source} |')
     steps = "\n".join(f"{i}. {prose(step)}" for i, step in enumerate(method["steps"], 1))
     sources = "\n".join(f'- [{s["title"]}]({s["url"]})' for s in method["sources"])
-    repo = "https://github.com/bnm2f28k6s/electoral-systems/blob/codex/initial-multi-winner-examples/"
+    repo = "https://github.com/bnm2f28k6s/electoral-systems/blob/main/"
     return f'''# {name}
 
 {prose(method["summary"])}
@@ -96,7 +97,7 @@ The response shows the intermediate calculation. Exact fractions are used intern
 
 ## Run the algorithm
 
-Each block includes its helpers and sample data, with no project imports. Python needs version 3.9 or newer; TypeScript runs directly with Node 22.18 or newer. These programs demonstrate counting valid profiles. The [complete engines and HTTP server](/multi-api.md) validate inputs and enforce the documented computation limits.
+Each block includes its helpers and sample data, with no project imports. Python needs version 3.9 or newer; TypeScript runs directly with Node 22.18 or newer; Go needs 1.23 or newer. The [complete engines and HTTP server](/multi-api.md) validate inputs and enforce the documented computation limits. The server runs Python; the Go examples count locally without a server.
 
 <CodeSelect title="{name.replace('&', '&amp;').replace(chr(34), '&quot;')} — complete algorithm">
 
@@ -108,9 +109,13 @@ Each block includes its helpers and sample data, with no project imports. Python
 {ts.rstrip()}
 ```
 
+```go
+{go.rstrip()}
+```
+
 </CodeSelect>
 
-Download the standalone [Python]({repo}examples/multi/python/{ident}.py) or [TypeScript]({repo}examples/multi/typescript/{ident}.ts) program.
+Download the standalone [Python]({repo}examples/multi/python/{ident}.py), [TypeScript]({repo}examples/multi/typescript/{ident}.ts), or [Go]({repo}examples/multi/go/{ident}.go) program.
 
 ## Simulate this committee through HTTP
 
@@ -150,7 +155,8 @@ def main():
     methods = json.loads((ROOT / "data/multi_methods.json").read_text())
     criteria = json.loads((ROOT / "data/multi_criteria.json").read_text())
     assert [m["id"] for m in methods] == METHOD_IDS
-    for folder in ("site/multi-methods", "examples/multi/python", "examples/multi/typescript", "examples/multi/requests", "examples/multi/responses"):
+    go_programs = go_examples({m["id"]: example_request(m["id"]) for m in methods}, "multi")
+    for folder in ("site/multi-methods", "examples/multi/python", "examples/multi/typescript", "examples/multi/go", "examples/multi/requests", "examples/multi/responses"):
         (ROOT / folder).mkdir(parents=True, exist_ok=True)
     for method in methods:
         ident = method["id"]
@@ -161,10 +167,11 @@ def main():
         py, ts = python_example(ident, request), typescript_example(ident, request)
         (ROOT / f"examples/multi/python/{ident}.py").write_text(py)
         (ROOT / f"examples/multi/typescript/{ident}.ts").write_text(ts)
+        (ROOT / f"examples/multi/go/{ident}.go").write_text(go_programs[ident])
         for kind, data in (("requests", request), ("responses", answer)):
             (ROOT / f"examples/multi/{kind}/{ident}.json").write_text(json.dumps(data, indent=2) + "\n")
-        (ROOT / f"site/multi-methods/{ident}.md").write_text(chapter(method, criteria, request, answer, py, ts))
-    catalog = "# Multi-winner method catalog\n\nA committee has a fixed number of seats. Some rules select the highest individual totals; others try to represent groups with different preferences. Electing several candidates does not automatically make a rule proportional.\n\nThis catalog covers all 19 rows in the [starting comparison's multi-winner table](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Criterion_tables), with precise counting variants, executable Python and TypeScript, and API requests. The [criteria guide](/multi-criteria.md) explains every comparison criterion, distinctions between committee preferences, and the additional approval-representation criteria used here.\n\n| Method | Ballot | Basic idea |\n| --- | --- | --- |\n"
+        (ROOT / f"site/multi-methods/{ident}.md").write_text(chapter(method, criteria, request, answer, py, ts, go_programs[ident]))
+    catalog = "# Multi-winner method catalog\n\nA committee has a fixed number of seats. Some rules select the highest individual totals; others try to represent groups with different preferences. Electing several candidates does not automatically make a rule proportional.\n\nThis catalog covers all 19 rows in the [starting comparison's multi-winner table](https://en.wikipedia.org/wiki/Comparison_of_electoral_systems#Criterion_tables), with precise counting variants, executable Python, TypeScript, and Go, and API requests. The [criteria guide](/multi-criteria.md) explains every comparison criterion, distinctions between committee preferences, and the additional approval-representation criteria used here.\n\n| Method | Ballot | Basic idea |\n| --- | --- | --- |\n"
     catalog += "\n".join(f'| [{m["name"]}](/multi-methods/{m["id"]}.md) | {md_cell(m["ballot"])} | {md_cell(prose(m["summary"]))} |' for m in methods)
     catalog += "\n\nStart with [bloc voting](/multi-methods/bloc.md) and [single non-transferable vote](/multi-methods/single-non-transferable.md), then compare [STV](/multi-methods/stv.md) and [proportional approval](/multi-methods/proportional-approval.md). Read the [ballot guide](/multi-ballots.md) before running a count, or return to the [single-winner catalog](/methods.md).\n"
     (ROOT / "site/multi-methods.md").write_text(catalog)
@@ -177,7 +184,7 @@ def main():
     for m in methods:
         nav += f'    - label: {json.dumps(m["name"])}\n      href: /multi-methods/{m["id"]}.md\n'
     (ROOT / "site/navigation.yaml").write_text(nav + api_nav)
-    print(f"Generated {len(methods)} multi-winner chapters and {2*len(methods)} standalone programs")
+    print(f"Generated {len(methods)} multi-winner chapters and {3*len(methods)} standalone programs")
 
 
 if __name__ == "__main__":

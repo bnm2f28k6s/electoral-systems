@@ -85,6 +85,13 @@ def invalid_profiles():
         yield {**valid, "ballots": [ballot]}
     yield {**valid, "ballots": []}
     yield {**valid, "unknown": True}
+    # Allowed field names joined by a delimiter are still unknown field names.
+    for key in ("method|candidates", "method|candidates|seats"):
+        yield {**valid, key: True}
+    for key in ("maxScore|budget", "limit|seed"):
+        yield {**valid, "options": {key: 1}}
+    for key in ("ranking|approvals", "votes|count"):
+        yield {**valid, "ballots": [{"ranking": ["A", "B", "C"], key: True}]}
     yield {**valid, "method": "limited-vote", "ballots": [{"approvals": ["A", "B"]}]}
     yield {**valid, "method": "limited-vote", "ballots": [{"approvals": ["A"]}], "options": {"limit": 2}}
     yield {**valid, "method": "cumulative", "ballots": [{"votes": {"A": 101, "B": 0, "C": 0}}]}
