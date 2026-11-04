@@ -15,10 +15,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "python"), str(ROOT / "scripts")]
 from multi_winner import simulate
 from multi_fixtures import METHOD_IDS, EXPECTED_WINNERS
-from test_contract import assert_equivalent, QuietHandler
+from test_contract import assert_equivalent, QuietHandler, UNICODE_IDS
 
 
 class MultiPublishedExamples(unittest.TestCase):
+    def test_cli_round_trips_unicode_identifiers(self):
+        for identifier in UNICODE_IDS:
+            request = {"method": "approval", "candidates": [identifier], "seats": 1,
+                       "ballots": [{"approvals": [identifier]}]}
+            for command, path in ((sys.executable, "python/multi_winner.py"), ("node", "typescript/multi_cli.ts")):
+                with self.subTest(identifier=ascii(identifier), command=command):
+                    completed = subprocess.run([command, str(ROOT / path)], input=json.dumps(request),
+                                               capture_output=True, text=True, check=True, timeout=30)
+                    self.assertEqual(json.loads(completed.stdout), simulate(request))
+
     def test_all_standalone_committee_programs(self):
         for method in METHOD_IDS:
             request = json.loads((ROOT / f"examples/multi/requests/{method}.json").read_text())
@@ -127,6 +137,15 @@ class MultiHttpContract(unittest.TestCase):
         large = {"method": "proportional-approval", "candidates": list("ABCDEFGHI"), "seats": 2,
                  "ballots": [{"approvals": ["A"]}]}
         self.assertEqual(self.call("POST", "/multi/simulate", large)[0], 413)
+
+    def test_http_round_trips_unicode_identifiers(self):
+        for identifier in UNICODE_IDS:
+            request = {"method": "approval", "candidates": [identifier], "seats": 1,
+                       "ballots": [{"approvals": [identifier]}]}
+            with self.subTest(identifier=ascii(identifier)):
+                status, body = self.call("POST", "/multi/simulate", request)
+                self.assertEqual(status, 200)
+                self.assertEqual(body, simulate(request))
 
     def test_committee_guide_response_and_copyable_clients(self):
         guide = (ROOT / "site/multi-api.md").read_text()

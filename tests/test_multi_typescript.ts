@@ -118,6 +118,18 @@ assert.equal(utility(pav.winners), Math.max(...pairScores));
 assert.equal(utility(['A', 'B']), 9);
 assert.equal(utility(['A', 'D']), 10);
 
+// A's six supporters get load 1/6. B's next level is (1 + 3/6)/4 = 3/8,
+// C's is (1 + 3/6)/3 = 1/2, so unrepresented D at 1/3 precedes both.
+const overlapping = simulate({method: 'phragmen', candidates, seats: 3, ballots: [
+  {approvals: ['A', 'B'], count: 3}, {approvals: ['A', 'C'], count: 3},
+  {approvals: ['B'], count: 1}, {approvals: ['D'], count: 3},
+]});
+assert.deepEqual(overlapping.trace.map(row => row.selected), ['A', 'D', 'B']);
+assert.deepEqual(overlapping.winners, ['A', 'B', 'D']);
+assert.equal(overlapping.tie, false);
+assert.deepEqual(overlapping.trace[1].loadLevels, {B: 3/8, C: 1/2, D: 1/3});
+assert.deepEqual(overlapping.trace[2].loads, [3/8, 1/6, 3/8, 1/3]);
+
 // Unsupported candidates are valid: priority fills remaining seats, and null
 // load levels are JSON data rather than Infinity or NaN.
 const noSupport = simulate({method: 'phragmen', candidates: ['A', 'B', 'C'], seats: 2, ballots: [{approvals: []}]});
