@@ -148,6 +148,12 @@ class CountingTests(unittest.TestCase):
                 ballots = [{"ranking": ["A"]}]
             self.assertEqual(ranked(method, ballots, ["A"])["winners"], ["A"])
 
+    def test_integral_json_numbers_are_normalized(self):
+        floats = [{"scores": {"A": 5.0, "B": 4.0, "C": 0.0}, "count": 2.0}]
+        value = ranked("majority-judgment", floats, maxScore=5.0, seed=1.0, budget=100.0)
+        self.assertEqual(value["winners"], ["A"])
+        self.assertEqual(ranked("random-ballot", [{"choice": "A", "count": 1.0}], seed=1.0)["winners"], ["A"])
+
     def test_invalid_inputs_and_resource_guards(self):
         valid = {"method": "borda", "candidates": CANDIDATES, "ballots": PROFILE}
         invalid = [None, {}, {**valid, "method": []}, {**valid, "candidates": ["A", "A"]},
@@ -203,6 +209,7 @@ class ServerTests(unittest.TestCase):
 
     def test_json_errors_and_http_statuses(self):
         self.assertEqual(self.request("POST", "/simulate", "{", {"Content-Type": "application/json"})[0], 400)
+        self.assertEqual(self.request("POST", "/simulate", '{"unexpected":NaN}', {"Content-Type": "application/json"})[0], 400)
         self.assertEqual(self.request("POST", "/simulate", "{}", {"Content-Type": "text/plain"})[0], 415)
         self.assertEqual(self.request("GET", "/absent")[0], 404)
         self.assertEqual(self.request("POST", "/absent", "{}")[0], 404)

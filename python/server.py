@@ -4,7 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlsplit
 
-from electoral import ElectionError, METHODS, simulate
+from electoral import ElectionError, METHODS, reject_constant, simulate
 
 MAX_BYTES = 1024 * 1024
 
@@ -46,7 +46,7 @@ class Handler(BaseHTTPRequestHandler):
             if len(body) != length:
                 raise ElectionError("Incomplete request body")
             try:
-                request = json.loads(body.decode("utf-8"))
+                request = json.loads(body.decode("utf-8"), parse_constant=reject_constant)
             except (UnicodeDecodeError, json.JSONDecodeError):
                 raise ElectionError("Request must be valid UTF-8 JSON")
             self.send_json(200, simulate(request))

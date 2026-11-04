@@ -22,7 +22,7 @@ def require(condition, message, status=400):
 
 
 def integer(value):
-    return isinstance(value, int) and not isinstance(value, bool)
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and abs(value) <= 9007199254740991 and value % 1 == 0
 
 
 def validate(request):
@@ -42,6 +42,7 @@ def validate(request):
     require(integer(options["maxScore"]) and 1 <= options["maxScore"] <= 100, "maxScore must be an integer from 1 to 100")
     require(integer(options["budget"]) and 1 <= options["budget"] <= 1000000, "budget must be an integer from 1 to 1000000")
     require(integer(options["seed"]) and 0 <= options["seed"] < 2**32, "seed must be a uint32 integer")
+    options = {key: int(value) for key, value in options.items()}
     ballots = request.get("ballots")
     require(isinstance(ballots, list), "ballots must be an array")
     require(len(ballots) <= 10000, "At most 10000 ballot groups", 413)
@@ -56,6 +57,7 @@ def validate(request):
         require(len(fields) == 1, "Each ballot needs exactly one ballot format")
         count = b.get("count", 1)
         require(integer(count) and 1 <= count <= 1000000, "count must be a positive integer at most 1000000")
+        count = int(count)
         total += count
         require(total <= 1000000, "At most 1000000 represented voters", 413)
         field = next(iter(fields))
@@ -75,6 +77,8 @@ def validate(request):
                 require(all(0 <= x <= options["maxScore"] for x in value.values()), "Scores outside 0..maxScore")
             else:
                 require(sum(x*x for x in value.values()) <= options["budget"], "Quadratic ballot exceeds sum-of-squares budget")
+        if field in {"scores", "credits"}:
+            value = {key: int(item) for key, item in value.items()}
         normalized.append({field: value, "count": count})
     if method == "kemeny-young":
         require(len(c) <= 8, "Exact Kemeny enumeration supports at most 8 candidates", 413)
@@ -485,6 +489,10 @@ METHODS = {
 }
 
 
+def reject_constant(value):
+    raise ElectionError("JSON must not contain " + value)
+
+
 def simulate(request):
     method, c, ballots, options = validate(request)
     counted = METHODS[method](c, ballots, options)
@@ -493,7 +501,7 @@ def simulate(request):
 
 if __name__ == "__main__":
     try:
-        print(json.dumps(simulate(json.load(sys.stdin)), ensure_ascii=False))
+        print(json.dumps(simulate(json.load(sys.stdin, parse_constant=reject_constant)), ensure_ascii=False))
     except (ElectionError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}), file=sys.stderr)
         sys.exit(1)
