@@ -33,7 +33,9 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p 'test_*.py'
           node tests/test_typescript.ts
+          node tests/test_family_api.ts
           node --test tests/test_comparison.mjs
+          node --test tests/test_simulator.mjs
           python3 scripts/check_parity.py
           node tests/test_multi_typescript.ts
           python3 scripts/check_multi_parity.py
@@ -51,7 +53,9 @@ jobs:
       - name: Build documentation
         run: python3 scripts/build.py
       - name: Check generated site
-        run: python3 scripts/check.py
+        run: |
+          python3 scripts/check.py
+          node tests/test_browser_engine.mjs
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         if: github.event_name != 'pull_request'
         with:

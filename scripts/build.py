@@ -6,6 +6,8 @@ import json
 import re
 import subprocess
 from comparison import install_comparison
+from browser_engine import compile_browser
+from simulator import install_simulator
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site/_build"
@@ -34,6 +36,8 @@ def site_url(value):
 def main():
     subprocess.run([str(ROOT / "bin/docapella"), "build"], cwd=ROOT / "site", check=True)
     install_comparison(OUT)
+    compile_browser(OUT)
+    install_simulator(OUT)
     for page in OUT.rglob("*.html"):
         text = page.read_text()
         text = re.sub(r'(?<![:\w-])(href|src)="([^"]*)"',

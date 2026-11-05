@@ -5,6 +5,7 @@ A learning resource explaining 25 single-winner and 19 multi-winner methods thro
 - [Website](https://bnm2f28k6s.github.io/electoral-systems/) (new branch content appears after merging to `main`)
 - [Single-winner catalog](site/methods.md)
 - [Filterable comparison](site/comparison.md)
+- [Browser simulator](site/simulator.md)
 - [Multi-winner catalog](site/multi-methods.md)
 - [Committee criteria](site/multi-criteria.md) and [committee API guide](site/multi-api.md)
 - [Criteria and assumptions](site/criteria.md)
@@ -39,7 +40,7 @@ curl --fail-with-body http://127.0.0.1:8000/simulate \
 
 For committees, use `GET /multi/systems` and `POST /multi/simulate` with a required `seats` field. You can also run `python3 python/multi_winner.py < examples/multi/requests/stv.json`, `node typescript/multi_cli.ts < examples/multi/requests/stv.json`, or `(cd go && go run ./cmd/multi < ../examples/multi/requests/stv.json)`.
 
-The server executes the Python engines; it is not a mock response service. GitHub Pages serves only static documentation. Each file in `examples/python/`, `examples/typescript/`, `examples/go/`, and their `examples/multi/` counterparts is independently runnable without project imports, and includes its own sample input. For example, run `go run examples/go/borda.go`. The examples focus on valid data; the complete engines perform input validation. See the [Go package guide](go/README.md) for library use and its JSON Unicode boundary.
+The server executes the Python engines; it is not a mock response service. GitHub Pages serves static documentation with an optional client-side simulator, not a hosted HTTP backend. Each file in `examples/python/`, `examples/typescript/`, `examples/go/`, and their `examples/multi/` counterparts is independently runnable without project imports, and includes its own sample input. For example, run `go run examples/go/borda.go`. The examples focus on valid data; the complete engines perform input validation. See the [Go package guide](go/README.md) for library use and its JSON Unicode boundary.
 
 ## Coverage
 
@@ -56,7 +57,9 @@ The code does not implement voter eligibility, secrecy, election administration,
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 node tests/test_typescript.ts
+node tests/test_family_api.ts
 node --test tests/test_comparison.mjs
+node --test tests/test_simulator.mjs
 python3 scripts/check_parity.py
 node tests/test_multi_typescript.ts
 python3 scripts/check_multi_parity.py
@@ -75,7 +78,7 @@ npm_config_cache="$PWD/.cache/npm" npm_config_ignore_scripts=true \
 
 ## Build the documentation
 
-Prerequisites: Git, Python 3.9+, Go 1.23+ for example generation, and Rust/Cargo or Nix. The installer builds a pinned Docapella revision into ignored `bin/`. `tools/docapella.Cargo.lock` pins its dependency resolution. Native Apple Silicon macOS and Ubuntu are supported by the existing build workflow.
+Prerequisites: Git, Python 3.9+, Node.js 22.18+ with npm/npx, Go 1.23+ for example generation, and Rust/Cargo or Nix. The installer builds a pinned Docapella revision into ignored `bin/`. `tools/docapella.Cargo.lock` pins its dependency resolution. Native Apple Silicon macOS and Ubuntu are supported by the existing build workflow. The production build compiles the existing TypeScript engines with `typescript@5.9.3` through npx (cached in ignored `.cache/npm`, install scripts disabled); the first build needs registry access. No third-party runtime dependency is added to the engines.
 
 ```sh
 ./scripts/install-docapella.sh
@@ -83,6 +86,7 @@ python3 scripts/generate_docs.py
 python3 scripts/generate_openapi.py
 python3 scripts/build.py
 python3 scripts/check.py
+node tests/test_browser_engine.mjs
 ```
 
 Edit the single-winner or `multi_` catalogs in `data/`, the engines, or `scripts/fixtures.py` / `scripts/multi_fixtures.py` to update generated chapters and examples. Run both generators after a change and commit the generated files too. The generators extract each method's helper dependencies directly from the engines; they do not maintain separate algorithm copies by hand. Go extraction uses Go's parser through `go/cmd/examplegen`. Review [`site/algorithm-template.md`](site/algorithm-template.md) for chapter conventions. Components use [Docapella's documented syntax](https://docapella.com/components), including language selectors and steps.
@@ -102,6 +106,14 @@ Open `http://127.0.0.1:8080/electoral-systems/`. Create the symlink only once. D
 Pushes to `main` build and deploy `site/_build/` through GitHub Pages Actions. Pushes to `codex/initial-single-winner-examples`, `codex/initial-multi-winner-examples`, and pull requests run checks without deployment. Workflow actions and Docapella source are commit-pinned. `scripts/build.py` adapts generated links and search references to `/electoral-systems`, without modifying the generator or site styling.
 
 Docapella supplies third-party CDN browser dependencies; the documentation is not an offline bundle.
+
+### Browser simulator
+
+The [simulator](site/simulator.md) loads the canonical worked requests for all 25 single-winner and 19 committee methods. With JavaScript enabled, visitors can edit a JSON request and run the compiled TypeScript engine in a module Web Worker. No simulation request is sent to a server. Use only synthetic ballots; this is a teaching tool, not election administration software.
+
+The static page retains every worked request and executed result without JavaScript. Interactive controls are optional. Browser requests have smaller limits than the local API, and a timed-out worker is terminated so expensive exact algorithms cannot block the page. The Python HTTP API remains available for local use, including specialized ballot-family endpoints documented in the API guides.
+
+`scripts/browser_engine.py` uses TypeScript's relative-import rewriting to emit browser ES modules without handwritten algorithm copies or source maps. `scripts/simulator.py` installs the static examples and page-specific assets through the production build wrapper. Run `node tests/test_browser_engine.mjs` after building to compare all emitted methods with the source engines and published fixtures. For the DOM and worker regressions, open the built `/electoral-systems/simulator.html` in the loopback preview and evaluate `tests/simulator_browser.js`, then `tests/simulator_failures_browser.js`. The latter injects startup/count timeouts, stale responses, worker errors, constructor exceptions, and an unsupported-worker environment into a disposable fixture. These browser-console regressions are not currently run in CI; renderer, worker-policy logic, emitted-engine parity, and HTTP contract tests are.
 
 ### Comparison page
 

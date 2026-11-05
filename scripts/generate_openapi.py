@@ -1,5 +1,6 @@
 """Generate the API contract and executed examples from the shared catalog."""
 import json
+from copy import deepcopy
 from pathlib import Path
 import sys
 
@@ -16,6 +17,57 @@ def array(items, **kw):
 def object_schema(properties, required, **kw):
     return {"type": "object", "properties": properties, **({"required": required} if required else {}),
             "additionalProperties": False, **kw}
+
+
+def add_family_paths(spec, prefix, catalogs, union, result):
+    """Narrow existing method-specific unions to one input format per route."""
+    schemas = spec["components"]["schemas"]
+    ballot_names = {"ranked": "RankedBallot", "marked": "MarkBallot", "approval": "ApprovalBallot",
+                    "scored": "ScoreBallot", "quadratic": "CreditBallot", "cumulative": "CumulativeBallot"}
+    for family, methods in catalogs.items():
+        refs = []
+        for ref in schemas[union]["oneOf"]:
+            source = ref["$ref"].split("/")[-1]
+            schema = deepcopy(schemas[source])
+            accepted = [m for m in schema["properties"]["method"]["enum"] if m in methods]
+            if not accepted:
+                continue
+            schema["properties"]["method"]["enum"] = accepted
+            if family != "none":
+                schema["properties"]["ballots"]["items"] = {"$ref": "#/components/schemas/" + ballot_names[family]}
+            name = source + family.title() + "Request"
+            schemas[name] = schema
+            refs.append({"$ref": "#/components/schemas/" + name})
+        name = union + family.title() + "Request"
+        schemas[name] = {"oneOf": refs}
+        operation = deepcopy(spec["paths"][prefix]["post"])
+        operation["operationId"] += family.title()
+        operation["summary"] = "Count " + family + " ballots"
+        operation["description"] = "Accepts only the named ballot format, without coercion or mixed formats. Method compatibility is checked even for an empty ballot array. All canonical engine validation and limits apply."
+        content = operation["requestBody"]["content"]["application/json"]
+        content["schema"] = {"$ref": "#/components/schemas/" + name}
+        # Facade examples may use ranking for a method that also accepts choice.
+        examples = {}
+        for method, example in content.get("examples", {}).items():
+            if method not in methods:
+                continue
+            value = example["value"]
+            if family == "ranked" and value["ballots"] and "choice" in value["ballots"][0]:
+                for b in value["ballots"]:
+                    choice = b.pop("choice")
+                    b["ranking"] = [choice] + [c for c in value["candidates"] if c != choice]
+            if family == "marked":
+                for b in value["ballots"]:
+                    if "ranking" in b:
+                        ranking = b.pop("ranking")
+                        b["choice"] = ranking[-1] if method == "anti-plurality" else ranking[0]
+            expected = {"ranked": "ranking", "marked": "choice", "approval": "approvals", "scored": "scores", "quadratic": "credits", "cumulative": "votes"}.get(family)
+            if family == "none" or all(expected in b for b in value["ballots"]):
+                examples[method] = example
+        content["examples"] = examples
+        operation["responses"]["200"]["content"]["application/json"] = {
+            "schema": {"$ref": "#/components/schemas/" + result}}
+        spec["paths"][prefix + "/" + family] = {"post": operation}
 
 
 def main():
@@ -77,6 +129,8 @@ def main():
     }
     from generate_multi_openapi import extend
     spec = extend(spec)
+    from api import FAMILY_METHODS
+    add_family_paths(spec, "/simulate", FAMILY_METHODS, "Election", "Result")
     (ROOT / "site/openapi.json").write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n")
 
 

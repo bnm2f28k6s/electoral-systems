@@ -1,6 +1,6 @@
 # Run the simulation API
 
-The local server executes the Python counting engine and returns an inspectable result. It implements every method in the [catalog](/methods.md). GitHub Pages hosts this documentation and cannot execute these requests.
+The local server executes the Python counting engine and returns an inspectable result. It implements every method in the [catalog](/methods.md). The HTTP requests below require that local server; GitHub Pages does not host an API backend. To count a small example without installing anything, use the optional [browser simulator](/simulator.md), which runs the compiled TypeScript engine locally in your browser.
 
 ## Start the server
 
@@ -16,7 +16,39 @@ The server listens on `127.0.0.1:8000`. Use `--port 8081` to choose another port
 curl http://127.0.0.1:8000/systems
 ```
 
-This returns an object with a `methods` array. The [OpenAPI reference](/api/reference) documents both endpoints and includes an executed request and response for every method.
+This returns an object with a `methods` array. The [OpenAPI reference](/api/reference) documents the common facade and ballot-family endpoints and includes an executed request and response for every method on the facade.
+
+## Choose a ballot-family endpoint
+
+`POST /simulate` remains the common facade. For homogeneous ballots it dispatches
+to the same family contract as these specialized routes:
+
+| Route | Required ballot field | Compatible methods |
+| --- | --- | --- |
+| `/simulate/ranked` | `ranking` | All complete-ranking methods, including plurality, anti-plurality, and random-ballot |
+| `/simulate/marked` | `choice` | plurality, anti-plurality, random-ballot |
+| `/simulate/approval` | `approvals` | approval |
+| `/simulate/scored` | `scores` | score, star, majority-judgment |
+| `/simulate/quadratic` | `credits` | quadratic |
+| `/simulate/none` | No ballots; `ballots: []` | sortition |
+
+The request and result fields do not change. For example, send the ranked IRV
+request below to `/simulate/ranked` instead of `/simulate`. Each specialized
+route rejects other formats and mixed-format profiles, even when the selected
+method accepts both formats separately. Method compatibility is checked even
+when `ballots` is empty. A non-sortition method still requires at least one
+ballot. A `choice` on anti-plurality marks the candidate to oppose; a complete
+ranking opposes its last candidate. No format is silently converted.
+
+The facade retains legacy support for profiles mixing `choice` and `ranking`
+on plurality, anti-plurality, and random-ballot. Canonical engine validation,
+options, resource limits, error statuses, and result semantics apply to every
+route. The OpenAPI family schemas narrow the existing method-specific request
+unions rather than accepting arbitrary objects.
+
+Python callers can import `simulate_request(request, family=None)` from
+`python/api.py`. TypeScript callers can import `simulateRequest(input, family?)`
+and `FAMILY_METHODS` from `typescript/api.ts`. Family names are the route suffixes.
 
 ## Count an election
 

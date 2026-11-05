@@ -1,0 +1,13 @@
+#simulator-root [hidden] { display: none !important; }
+#simulator-root { min-width: 0; }
+#simulator-root label { display: block; margin-block: 1rem; }
+#simulator-root select, #simulator-root textarea { display: block; width: 100%; max-width: 100%; color: inherit; background: var(--background-color, Canvas); border: 1px solid currentColor; border-radius: .25rem; padding: .5rem; box-sizing: border-box; }
+#simulator-root textarea, #simulator-root pre { font-family: ui-monospace, monospace; }
+#simulator-root pre { max-width: 100%; overflow-x: auto; padding: .75rem; }
+#simulator-root button { margin: .25rem .75rem .25rem 0; padding: .5rem .75rem; }
+#simulator-root :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+#simulator-root details { margin-block: .75rem; }
+#simulator-root summary { cursor: pointer; }
+#simulator-root dt { font-weight: bold; }
+#simulator-root dd { margin-inline-start: 1rem; }
+#simulator-status { border-inline-start: .25rem solid currentColor; padding-inline-start: .75rem; }
