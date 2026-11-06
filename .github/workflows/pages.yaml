@@ -33,6 +33,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p 'test_*.py'
           node tests/test_typescript.ts
+          node --test tests/test_comparison.mjs
           python3 scripts/check_parity.py
           node tests/test_multi_typescript.ts
           python3 scripts/check_multi_parity.py

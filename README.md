@@ -4,6 +4,7 @@ A learning resource explaining 25 single-winner and 19 multi-winner methods thro
 
 - [Website](https://bnm2f28k6s.github.io/electoral-systems/) (new branch content appears after merging to `main`)
 - [Single-winner catalog](site/methods.md)
+- [Filterable comparison](site/comparison.md)
 - [Multi-winner catalog](site/multi-methods.md)
 - [Committee criteria](site/multi-criteria.md) and [committee API guide](site/multi-api.md)
 - [Criteria and assumptions](site/criteria.md)
@@ -55,6 +56,7 @@ The code does not implement voter eligibility, secrecy, election administration,
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 node tests/test_typescript.ts
+node --test tests/test_comparison.mjs
 python3 scripts/check_parity.py
 node tests/test_multi_typescript.ts
 python3 scripts/check_multi_parity.py
@@ -100,6 +102,14 @@ Open `http://127.0.0.1:8080/electoral-systems/`. Create the symlink only once. D
 Pushes to `main` build and deploy `site/_build/` through GitHub Pages Actions. Pushes to `codex/initial-single-winner-examples`, `codex/initial-multi-winner-examples`, and pull requests run checks without deployment. Workflow actions and Docapella source are commit-pinned. `scripts/build.py` adapts generated links and search references to `/electoral-systems`, without modifying the generator or site styling.
 
 Docapella supplies third-party CDN browser dependencies; the documentation is not an offline bundle.
+
+### Comparison page
+
+The [comparison page](site/comparison.md) has separate single-winner and committee matrices, exact-assessment criterion filters, selectable columns, search, ballot/family filters, and alphabetical sorting. All active filters must match. Conditional, unverified, and not-applicable entries are never treated as pass or fail. Every cell retains its explanation and source; rule details include variants, ties, cost, and limits.
+
+Docapella's pinned [component registry](https://github.com/Doctave/docapella/blob/789583bb81bbae43a8600b0b4f525a9bce387038/crates/libdoctave/src/markdown/primitive_components/mod.rs) has no filterable data table, and its [Markdown sanitizer](https://github.com/Doctave/docapella/blob/789583bb81bbae43a8600b0b4f525a9bce387038/crates/libdoctave/src/markdown/sanitizer.rs) removes scripts. `scripts/comparison.py` therefore fills the comparison page's explicit marker during `scripts/build.py`, using the existing `data/` catalogs. `web/comparison.mjs` and `web/comparison.css` provide a small site-local enhancement without new dependencies or upstream template changes. A plain Docapella build alone does not install this enhancement; use `python3 scripts/build.py`. Both full tables remain available without JavaScript. The build checker verifies catalog freshness, complete row coverage, assets, and project-path links. Run `node --test tests/test_comparison.mjs` for filtering/sorting checks; Python renderer checks are included in unittest discovery.
+
+For the browser DOM regression, open the built comparison page using the loopback preview above, then evaluate `tests/comparison_browser.js` in the browser console or a browser automation tool. It throws on failure and returns a report on success, covering every criterion/status selection plus scope isolation, search, sorting, column/filter independence, empty states, reset, and focus restoration. It resets the page afterward and requires no test packages.
 
 ## Sources and licensing
 

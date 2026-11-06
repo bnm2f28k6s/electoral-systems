@@ -5,6 +5,7 @@ from urllib.parse import urlsplit, unquote
 import json
 import re
 import subprocess
+from comparison import catalog_data
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site/_build"
@@ -62,6 +63,14 @@ def main():
     assert any("algorithm" in d.get("title", "").lower() for d in docs)
     catalog = json.loads((ROOT / "data/methods.json").read_text())
     indexed_urls = {d["page_url"] for d in docs}
+    assert PREFIX + "comparison.html" in indexed_urls, "Comparison missing from search"
+    comparison = (OUT / "comparison.html").read_text()
+    payload = re.search(r'<script type="application/json" id="comparison-data">(.*?)</script>', comparison, re.S)
+    assert payload and json.loads(payload[1]) == catalog_data(), "Stale comparison catalogs"
+    expected_rows = sum(len(c["methods"]) for c in catalog_data().values())
+    assert len(re.findall(r'<tr data-method=', comparison)) == expected_rows, "Incomplete static comparison"
+    for asset in ("comparison.css", "comparison.mjs"):
+        assert (OUT / "_assets" / asset).read_bytes() == (ROOT / "web" / asset).read_bytes(), "Stale comparison asset"
     for method in catalog:
         url = PREFIX + "methods/" + method["id"] + ".html"
         assert url in indexed_urls, f"Method missing from search: {method['id']}"
