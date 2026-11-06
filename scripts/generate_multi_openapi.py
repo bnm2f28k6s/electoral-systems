@@ -10,7 +10,7 @@ from multi_fixtures import METHOD_IDS, APPROVAL_METHODS, example_request
 
 
 def extend(spec):
-    from generate_openapi import array, object_schema
+    from generate_openapi import array, object_schema, add_family_paths
     identifier = {"type": "string", "minLength": 1, "maxLength": 100}
     count = {"type": "integer", "minimum": 1, "maximum": 1000000, "default": 1}
     schemas = spec["components"]["schemas"]
@@ -81,4 +81,6 @@ def extend(spec):
         }}},
         "responses": responses,
     }}
+    from api import MULTI_FAMILY_METHODS
+    add_family_paths(spec, "/multi/simulate", MULTI_FAMILY_METHODS, "MultiElection", "MultiResult")
     return spec

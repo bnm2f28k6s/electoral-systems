@@ -8,6 +8,8 @@ Start with [plurality](/methods/plurality.md): each voter supports one candidate
 
 Use the [interactive comparison](/comparison.md) to compare ballot formats, counting families, and criteria. Filter by exact assessments, choose columns, and open the assumptions behind each cell.
 
+[Try a simulation in your browser](/simulator.md) without installing anything. With JavaScript enabled, small synthetic requests run locally using the compiled TypeScript engines. Without JavaScript, all worked requests and results remain readable.
+
 <Steps>
   <Step title="Choose the ballot format">
     A single mark, an ordered ranking, approvals, and numerical scores convey different information. Read the [ballot guide](/ballots.md) before comparing results.
@@ -29,4 +31,4 @@ The algorithms are deliberately small teaching implementations. Ranked examples 
 
 The [sources](/sources.md) distinguish definitions, mathematical properties, and practical implementation choices. A property of a standard method may depend on assumptions that our restricted example cannot express. Each chapter records those qualifications rather than treating one successful count as a proof.
 
-GitHub Pages serves this documentation; it does not run a backend. The API runs locally. This resource explains counting and does not provide voter registration, secret ballots, election administration, or certification.
+GitHub Pages serves this documentation; it does not run a backend. Optional interactive counts run in your browser; the HTTP API runs locally. This resource explains counting and does not provide voter registration, secret ballots, election administration, or certification.

@@ -4,6 +4,8 @@ The committee API executes the same Python algorithms as the multi-winner chapte
 
 The existing [single-winner API](/api-design.md) remains available. Its final co-winner convention differs from choosing a committee of a fixed size, so committee requests use separate endpoints.
 
+For small examples without a local server, use the optional [browser simulator](/simulator.md). It runs the compiled TypeScript committee engine locally in your browser; GitHub Pages does not host an HTTP API backend.
+
 ## Start the server
 
 From the repository root, with Python 3.9 or newer:
@@ -19,6 +21,35 @@ curl http://127.0.0.1:8000/multi/systems
 ```
 
 The response is an object with a `methods` array. The [OpenAPI reference](/api/reference) includes a request and an executed response for every method.
+
+## Choose a ballot-family endpoint
+
+`POST /multi/simulate` remains the common facade. These specialized routes use
+the same request, including required `seats`, and return the same committee result:
+
+| Route | Required ballot field | Compatible methods |
+| --- | --- | --- |
+| `/multi/simulate/ranked` | `ranking` | stv, cpo-stv, schulze-stv, k-borda, bloc, quota-borda, expanding-approvals, minimax, minimax-external-opposition, single-non-transferable, multiple-random-ballots |
+| `/multi/simulate/marked` | `choice` | single-non-transferable |
+| `/multi/simulate/approval` | `approvals` | approval, proportional-approval, sequential-proportional-approval, phragmen, limited-vote |
+| `/multi/simulate/scored` | `scores` | reweighted-range |
+| `/multi/simulate/cumulative` | `votes` | cumulative |
+| `/multi/simulate/none` | No ballots; `ballots: []` | sortition |
+
+Ranked and marked describe input formats, not exclusive groups of methods.
+Single non-transferable vote accepts either separately. Specialized endpoints
+reject mixed formats and incompatible methods, including incompatible requests
+with an empty ballot array. They do not coerce ballots. The facade preserves
+legacy profiles mixing `choice` and `ranking` for single non-transferable vote.
+All canonical validation, dynamic option checks, computation limits, status
+codes, and committee tie semantics remain unchanged. Limited vote uses the
+approval format with a per-voter mark limit, not the single-choice format.
+
+Python callers can import `simulate_multi_request(request, family=None)` from
+`python/api.py`. TypeScript callers can import
+`simulateMultiRequest(input, family?)` and `MULTI_FAMILY_METHODS` from
+`typescript/api.ts`. Family names match the route suffixes. OpenAPI documents
+each specialized route with a narrowed method-specific request union.
 
 ## Count a committee
 

@@ -6,6 +6,8 @@ import json
 import re
 import subprocess
 from comparison import catalog_data
+from browser_engine import check_browser
+from simulator import simulator_data
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site/_build"
@@ -61,9 +63,20 @@ def main():
     for doc in docs:
         check_link(doc["page_url"], OUT / "index.html")
     assert any("algorithm" in d.get("title", "").lower() for d in docs)
+    check_browser(OUT)
     catalog = json.loads((ROOT / "data/methods.json").read_text())
     indexed_urls = {d["page_url"] for d in docs}
     assert PREFIX + "comparison.html" in indexed_urls, "Comparison missing from search"
+    assert PREFIX + "simulator.html" in indexed_urls, "Simulator missing from search"
+    simulator = (OUT / "simulator.html").read_text()
+    samples = simulator_data()
+    payload = re.search(r'<script id="simulator-data" type="application/json">(.*?)</script>', simulator, re.S)
+    assert payload and json.loads(payload[1]) == samples, "Stale simulator examples"
+    expected_examples = {scope + "/" + method["id"] for scope, domain in samples.items() for method in domain["methods"]}
+    static_examples = re.findall(r'<details data-example="([^"]+)"', simulator)
+    assert len(static_examples) == len(expected_examples) and set(static_examples) == expected_examples, "Incomplete static simulator examples"
+    for asset in ("simulator.css", "simulator.mjs", "simulator-worker.mjs"):
+        assert (OUT / "_assets" / asset).read_bytes() == (ROOT / "web" / asset).read_bytes(), "Stale simulator asset"
     comparison = (OUT / "comparison.html").read_text()
     payload = re.search(r'<script type="application/json" id="comparison-data">(.*?)</script>', comparison, re.S)
     assert payload and json.loads(payload[1]) == catalog_data(), "Stale comparison catalogs"

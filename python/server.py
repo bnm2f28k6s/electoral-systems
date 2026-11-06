@@ -5,9 +5,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from socket import timeout as SocketTimeout
 from urllib.parse import urlsplit
 
-from electoral import ElectionError, METHODS, reject_constant, simulate
+from electoral import ElectionError, METHODS, reject_constant
 from multi_winner import ElectionError as MultiElectionError
-from multi_winner import METHODS as MULTI_METHODS, simulate as simulate_multi
+from multi_winner import METHODS as MULTI_METHODS
+from api import FAMILY_METHODS, MULTI_FAMILY_METHODS, simulate_request, simulate_multi_request
 
 MAX_BYTES = 1024 * 1024
 
@@ -34,7 +35,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in {"/simulate", "/multi/simulate"}:
+        routes: dict = {"/simulate": (simulate_request, None), "/multi/simulate": (simulate_multi_request, None)}
+        routes.update({"/simulate/" + family: (simulate_request, family) for family in FAMILY_METHODS})
+        routes.update({"/multi/simulate/" + family: (simulate_multi_request, family) for family in MULTI_FAMILY_METHODS})
+        if path not in routes:
             self.send_json(404, {"error": "Unknown endpoint"})
             return
         try:
@@ -58,8 +62,8 @@ class Handler(BaseHTTPRequestHandler):
                 request = json.loads(body.decode("utf-8"), parse_constant=reject_constant)
             except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
                 raise ElectionError("Request must be valid UTF-8 JSON")
-            counter = simulate_multi if path == "/multi/simulate" else simulate
-            self.send_json(200, counter(request))
+            counter, family = routes[path]
+            self.send_json(200, counter(request, family))
         except (ElectionError, MultiElectionError) as error:
             self.send_json(error.status, {"error": str(error)})
         except (TimeoutError, SocketTimeout):
